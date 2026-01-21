@@ -13,176 +13,34 @@ import RequestDetailsModal from './components/RequestDetailsModal';
 import FilterControls from './components/FilterControls';
 
 const EmergencyPriorityQueue = () => {
-  const [requests, setRequests] = useState([
-    {
-      id: "REQ-2026-001",
-      patientName: "Sarah Johnson",
-      bloodGroup: "O-",
-      quantity: 4,
-      urgencyLevel: "Critical",
-      requesterType: "Hospital",
-      hospitalName: "City General Hospital",
-      verificationId: "HVR-2026-789",
-      verified: true,
-      status: "Pending",
-      location: "123 Emergency Drive, Downtown Medical District",
-      contactNumber: "+1 (555) 123-4567",
-      estimatedTime: "15 mins",
-      distance: "2.3 km",
-      routeInfo: "Via Highway 101 North",
-      timestamp: new Date(Date.now() - 300000)?.toISOString(),
-      priorityScore: 98,
-      queuePosition: 1,
-      waitTime: "5 mins",
-      timeline: [
-        { status: "Request Submitted", timestamp: new Date(Date.now() - 300000)?.toLocaleString(), completed: true, note: "Emergency request received" },
-        { status: "Verification Complete", timestamp: new Date(Date.now() - 240000)?.toLocaleString(), completed: true, note: "Hospital credentials verified" },
-        { status: "Blood Allocation", timestamp: "In Progress", completed: false },
-        { status: "Dispatch", timestamp: "Pending", completed: false },
-        { status: "Delivery", timestamp: "Pending", completed: false }
-      ]
-    },
-    {
-      id: "REQ-2026-002",
-      patientName: "Michael Chen",
-      bloodGroup: "AB+",
-      quantity: 2,
-      urgencyLevel: "Critical",
-      requesterType: "Hospital",
-      hospitalName: "Memorial Medical Center",
-      verificationId: "HVR-2026-456",
-      verified: true,
-      status: "Processing",
-      location: "456 Healthcare Boulevard, Westside Medical Complex",
-      contactNumber: "+1 (555) 234-5678",
-      estimatedTime: "20 mins",
-      distance: "3.7 km",
-      routeInfo: "Via Central Avenue",
-      timestamp: new Date(Date.now() - 600000)?.toISOString(),
-      priorityScore: 95,
-      queuePosition: 2,
-      waitTime: "10 mins",
-      timeline: [
-        { status: "Request Submitted", timestamp: new Date(Date.now() - 600000)?.toLocaleString(), completed: true, note: "Emergency request received" },
-        { status: "Verification Complete", timestamp: new Date(Date.now() - 540000)?.toLocaleString(), completed: true, note: "Hospital credentials verified" },
-        { status: "Blood Allocation", timestamp: new Date(Date.now() - 180000)?.toLocaleString(), completed: true, note: "2 units allocated from Central Bank" },
-        { status: "Dispatch", timestamp: "In Progress", completed: false },
-        { status: "Delivery", timestamp: "Pending", completed: false }
-      ]
-    },
-    {
-      id: "REQ-2026-003",
-      patientName: "Emily Rodriguez",
-      bloodGroup: "B+",
-      quantity: 3,
-      urgencyLevel: "High",
-      requesterType: "Hospital",
-      hospitalName: "St. Mary\'s Hospital",
-      verificationId: "HVR-2026-123",
-      verified: true,
-      status: "Pending",
-      location: "789 Medical Plaza, Northside Healthcare District",
-      contactNumber: "+1 (555) 345-6789",
-      estimatedTime: "25 mins",
-      distance: "4.2 km",
-      routeInfo: "Via Park Street",
-      timestamp: new Date(Date.now() - 900000)?.toISOString(),
-      priorityScore: 87,
-      queuePosition: 3,
-      waitTime: "15 mins",
-      timeline: [
-        { status: "Request Submitted", timestamp: new Date(Date.now() - 900000)?.toLocaleString(), completed: true, note: "High priority request received" },
-        { status: "Verification Complete", timestamp: new Date(Date.now() - 840000)?.toLocaleString(), completed: true, note: "Hospital credentials verified" },
-        { status: "Blood Allocation", timestamp: "Pending", completed: false },
-        { status: "Dispatch", timestamp: "Pending", completed: false },
-        { status: "Delivery", timestamp: "Pending", completed: false }
-      ]
-    },
-    {
-      id: "REQ-2026-004",
-      patientName: "David Thompson",
-      bloodGroup: "A+",
-      quantity: 2,
-      urgencyLevel: "High",
-      requesterType: "Doctor",
-      hospitalName: "Community Health Clinic",
-      verificationId: "DVR-2026-567",
-      verified: true,
-      status: "Pending",
-      location: "321 Wellness Avenue, Eastside Medical Center",
-      contactNumber: "+1 (555) 456-7890",
-      estimatedTime: "30 mins",
-      distance: "5.1 km",
-      routeInfo: "Via Main Street",
-      timestamp: new Date(Date.now() - 1200000)?.toISOString(),
-      priorityScore: 82,
-      queuePosition: 4,
-      waitTime: "20 mins",
-      timeline: [
-        { status: "Request Submitted", timestamp: new Date(Date.now() - 1200000)?.toLocaleString(), completed: true, note: "High priority request received" },
-        { status: "Verification Complete", timestamp: new Date(Date.now() - 1140000)?.toLocaleString(), completed: true, note: "Doctor credentials verified" },
-        { status: "Blood Allocation", timestamp: "Pending", completed: false },
-        { status: "Dispatch", timestamp: "Pending", completed: false },
-        { status: "Delivery", timestamp: "Pending", completed: false }
-      ]
-    },
-    {
-      id: "REQ-2026-005",
-      patientName: "Lisa Anderson",
-      bloodGroup: "O+",
-      quantity: 1,
-      urgencyLevel: "Normal",
-      requesterType: "Hospital",
-      hospitalName: "Regional Medical Center",
-      verificationId: "HVR-2026-890",
-      verified: true,
-      status: "Pending",
-      location: "654 Hospital Road, Southside Medical District",
-      contactNumber: "+1 (555) 567-8901",
-      estimatedTime: "35 mins",
-      distance: "6.8 km",
-      routeInfo: "Via River Road",
-      timestamp: new Date(Date.now() - 1800000)?.toISOString(),
-      priorityScore: 65,
-      queuePosition: 5,
-      waitTime: "30 mins",
-      timeline: [
-        { status: "Request Submitted", timestamp: new Date(Date.now() - 1800000)?.toLocaleString(), completed: true, note: "Standard request received" },
-        { status: "Verification Complete", timestamp: new Date(Date.now() - 1740000)?.toLocaleString(), completed: true, note: "Hospital credentials verified" },
-        { status: "Blood Allocation", timestamp: "Pending", completed: false },
-        { status: "Dispatch", timestamp: "Pending", completed: false },
-        { status: "Delivery", timestamp: "Pending", completed: false }
-      ]
-    },
-    {
-      id: "REQ-2026-006",
-      patientName: "James Wilson",
-      bloodGroup: "A-",
-      quantity: 2,
-      urgencyLevel: "Normal",
-      requesterType: "Doctor",
-      hospitalName: "Family Health Center",
-      verificationId: "DVR-2026-234",
-      verified: false,
-      status: "Pending",
-      location: "987 Care Street, Central Medical Plaza",
-      contactNumber: "+1 (555) 678-9012",
-      estimatedTime: "40 mins",
-      distance: "7.5 km",
-      routeInfo: "Via Oak Avenue",
-      timestamp: new Date(Date.now() - 2400000)?.toISOString(),
-      priorityScore: 58,
-      queuePosition: 6,
-      waitTime: "40 mins",
-      timeline: [
-        { status: "Request Submitted", timestamp: new Date(Date.now() - 2400000)?.toLocaleString(), completed: true, note: "Standard request received" },
-        { status: "Verification Complete", timestamp: "Pending", completed: false, note: "Awaiting credential verification" },
-        { status: "Blood Allocation", timestamp: "Pending", completed: false },
-        { status: "Dispatch", timestamp: "Pending", completed: false },
-        { status: "Delivery", timestamp: "Pending", completed: false }
-      ]
+  const [requests, setRequests] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchRequests = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/api/blood-requests');
+      if (!response.ok) {
+        throw new Error('Failed to fetch requests');
+      }
+      const data = await response.json();
+      setRequests(data.requests || []);
+    } catch (error) {
+      console.error('Error fetching requests:', error);
+      setNotifications(prev => [...prev, {
+        id: Date.now(),
+        type: 'error',
+        title: 'Failed to Load Requests',
+        message: 'Unable to fetch blood requests from server. Please try again.',
+        timestamp: new Date()?.toISOString()
+      }]);
+    } finally {
+      setLoading(false);
     }
-  ]);
+  };
+
+  useEffect(() => {
+    fetchRequests();
+  }, []);
 
   const [filters, setFilters] = useState({
     urgency: 'all',
@@ -318,6 +176,7 @@ const EmergencyPriorityQueue = () => {
                   iconName="RefreshCw"
                   iconPosition="left"
                   onClick={() => {
+                    fetchRequests();
                     setNotifications(prev => [...prev, {
                       id: Date.now(),
                       type: 'success',
