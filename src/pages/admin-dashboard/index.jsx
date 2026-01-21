@@ -14,6 +14,8 @@ import OperationalMetricsPanel from './components/OperationalMetricsPanel';
 import SystemAlertsPanel from './components/SystemAlertsPanel';
 import ScalabilityMonitor from './components/ScalabilityMonitor';
 import ExportReportModal from './components/ExportReportModal';
+import { dbHelpers } from '../../lib/supabase';
+import { useAuth } from '../../contexts/AuthContext';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -27,48 +29,106 @@ const AdminDashboard = () => {
   useEffect(() => {
     const loadDashboard = async () => {
       setIsLoading(true);
-      for (let i = 0; i <= 100; i += 20) {
-        setLoadingProgress(i);
-        await new Promise(resolve => setTimeout(resolve, 200));
-      }
-      setIsLoading(false);
+      setLoadingProgress(20);
 
-      setBannerAlerts([
-        {
-          id: 1,
-          severity: 'warning',
-          title: 'High System Load',
-          message: 'Current load at 78% capacity. Consider scaling resources.',
-          actionLabel: 'View Details',
-          onAction: () => console.log('View system load details')
+      try {
+        // Load blood requests data
+        const { data: requestsData, error: requestsError } = await dbHelpers.getBloodRequests();
+        setLoadingProgress(40);
+
+        // Load inventory data
+        const { data: inventoryData, error: inventoryError } = await dbHelpers.getInventory();
+        setLoadingProgress(60);
+
+        // Load ambulances data
+        const { data: ambulancesData, error: ambulancesError } = await dbHelpers.getAmbulances();
+        setLoadingProgress(80);
+
+        // Load admin metrics
+        const today = new Date().toISOString().split('T')[0];
+        const { data: metricsData, error: metricsError } = await dbHelpers.getAdminMetrics(today);
+        setLoadingProgress(100);
+
+        // Process alerts based on real data
+        const alerts = [];
+
+        // Check for critical blood shortages
+        if (inventoryData) {
+          const criticalBloodGroups = inventoryData.filter(item =>
+            item.status === 'critical' || item.quantity < 10
+          );
+          if (criticalBloodGroups.length > 0) {
+            alerts.push({
+              id: 1,
+              type: 'critical',
+              title: 'Critical Blood Shortage',
+              message: `${criticalBloodGroups.length} blood groups below minimum threshold`,
+              timestamp: '5 minutes ago',
+              location: 'Multiple Blood Banks'
+            });
+          }
         }
-      ]);
 
-      setAlerts([
-        {
-          id: 1,
-          type: 'critical',
-          title: 'Critical Blood Shortage',
-          message: 'O- blood group inventory below minimum threshold at Central Blood Bank',
-          timestamp: '5 minutes ago',
-          location: 'Central Blood Bank'
-        },
-        {
-          id: 2,
-          type: 'warning',
-          title: 'Expiring Inventory Alert',
-          message: '45 units of A+ blood expiring within 48 hours',
-          timestamp: '15 minutes ago',
-          location: 'City Hospital Blood Bank'
-        },
-        {
+        // Check for expiring inventory
+        if (inventoryData) {
+          const expiringSoon = inventoryData.filter(item => {
+            const expiryDate = new Date(item.expiry_date);
+            const now = new Date();
+            const hoursUntilExpiry = (expiryDate - now) / (1000 * 60 * 60);
+            return hoursUntilExpiry <= 48 && hoursUntilExpiry > 0;
+          });
+          if (expiringSoon.length > 0) {
+            alerts.push({
+              id: 2,
+              type: 'warning',
+              title: 'Expiring Inventory Alert',
+              message: `${expiringSoon.length} units expiring within 48 hours`,
+              timestamp: '15 minutes ago',
+              location: 'Various Blood Banks'
+            });
+          }
+        }
+
+        // System maintenance alert (static for now)
+        alerts.push({
           id: 3,
           type: 'info',
           title: 'System Maintenance Scheduled',
           message: 'Routine maintenance scheduled for tonight at 2:00 AM EST',
           timestamp: '1 hour ago'
+        });
+
+        setAlerts(alerts);
+
+        // Set banner alerts based on system status
+        const bannerAlerts = [];
+        if (metricsData && metricsData.system_load > 80) {
+          bannerAlerts.push({
+            id: 1,
+            severity: 'warning',
+            title: 'High System Load',
+            message: `Current load at ${metricsData.system_load}% capacity. Consider scaling resources.`,
+            actionLabel: 'View Details',
+            onAction: () => console.log('View system load details')
+          });
         }
-      ]);
+        setBannerAlerts(bannerAlerts);
+
+      } catch (error) {
+        console.error('Error loading dashboard data:', error);
+        // Fallback to mock alerts if data loading fails
+        setAlerts([
+          {
+            id: 1,
+            type: 'info',
+            title: 'Loading Data',
+            message: 'Dashboard data is being loaded...',
+            timestamp: 'Just now'
+          }
+        ]);
+      }
+
+      setIsLoading(false);
     };
 
     loadDashboard();
