@@ -37,7 +37,7 @@ const Header = () => {
             <div className="header-logo-icon">
               <Icon name="Droplet" size={24} color="#FFFFFF" />
             </div>
-            <span className="hidden sm:inline">SmartBloodAllocation</span>
+            <span className="hidden sm:inline">SmartBloodApplication</span>
           </Link>
 
           <nav className="header-nav-list">
