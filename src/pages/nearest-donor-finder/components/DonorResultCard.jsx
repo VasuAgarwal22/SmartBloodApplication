@@ -81,7 +81,7 @@ const DonorResultCard = ({ donor, rank }) => {
         <div className="flex items-start gap-2 mb-2">
           <Icon name="Route" size={16} color="var(--color-primary)" className="flex-shrink-0 mt-0.5" />
           <div className="flex-1 min-w-0">
-            <p className="text-xs md:text-sm font-semibold mb-1">Optimal Route (Dijkstra)</p>
+            <p className="text-xs md:text-sm font-semibold mb-1">Optimal Route</p>
             <p className="text-xs text-muted-foreground">{donor?.route}</p>
           </div>
         </div>

@@ -12,7 +12,8 @@ const EmptyState = ({ onSearch }) => {
         
         <h3 className="text-xl md:text-2xl font-semibold mb-2 md:mb-3">Start Your Search</h3>
         <p className="text-sm md:text-base text-muted-foreground mb-6 md:mb-8 leading-relaxed">
-          Enter your blood group requirement and location to find the nearest donors and blood banks using our advanced graph-based algorithm.
+          {/* Enter your blood group requirement and location to find the nearest donors and blood banks using our advanced graph-based algorithm. */}
+          Enter your blood group requirement and location to quickly find the nearest donors and blood banks through our intelligent matching system.
         </p>
 
         <div className="w-full space-y-3 md:space-y-4 mb-6 md:mb-8">
@@ -21,9 +22,9 @@ const EmptyState = ({ onSearch }) => {
               <Icon name="Zap" size={16} color="var(--color-primary)" />
             </div>
             <div>
-              <p className="text-sm md:text-base font-semibold mb-1">Fast Algorithm</p>
+              <p className="text-sm md:text-base font-semibold mb-1"> Fast Matching</p>
               <p className="text-xs md:text-sm text-muted-foreground">
-                Dijkstra's algorithm ensures optimal route calculation in milliseconds
+                The system instantly analyzes available blood sources and identifies the most suitable options to minimize response time.
               </p>
             </div>
           </div>
@@ -35,7 +36,7 @@ const EmptyState = ({ onSearch }) => {
             <div>
               <p className="text-sm md:text-base font-semibold mb-1">Accurate Location</p>
               <p className="text-xs md:text-sm text-muted-foreground">
-                Real-time distance and travel time calculations for precise planning
+                Real-time location and distance evaluation ensure precise results and efficient planning during emergencies.
               </p>
             </div>
           </div>
@@ -47,7 +48,7 @@ const EmptyState = ({ onSearch }) => {
             <div>
               <p className="text-sm md:text-base font-semibold mb-1">Verified Sources</p>
               <p className="text-xs md:text-sm text-muted-foreground">
-                All donors and blood banks are verified for reliability and safety
+                All donors and blood banks are carefully verified to ensure safety, reliability, and trustworthiness.
               </p>
             </div>
           </div>

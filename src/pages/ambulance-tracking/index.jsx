@@ -191,7 +191,7 @@ const AmbulanceTracking = () => {
   return (
     <>
       <Helmet>
-        <title>Ambulance Tracking - SmartBloodAllocation</title>
+        <title>Ambulance Tracking - SmartBloodApplication</title>
         <meta name="description" content="Real-time ambulance tracking and emergency response coordination for critical medical situations" />
       </Helmet>
       <Header />

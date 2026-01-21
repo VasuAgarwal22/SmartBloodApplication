@@ -11,7 +11,8 @@ const AlgorithmExplanation = () => {
         <div>
           <h3 className="text-base md:text-lg font-semibold mb-2">Algorithm Methodology</h3>
           <p className="text-xs md:text-sm text-muted-foreground leading-relaxed">
-            Our system uses <span className="font-semibold text-foreground">Graph Theory</span> combined with <span className="font-semibold text-foreground">Dijkstra's Algorithm</span> to calculate the shortest path between your location and available donors/blood banks.
+            {/* Our system uses <span className="font-semibold text-foreground">Graph Theory</span> combined with <span className="font-semibold text-foreground">Dijkstra's Algorithm</span> to calculate the shortest path between your location and available donors/blood banks. */}
+            <span className="font-semibold text-foreground">SmartBloodApplication</span> uses an intelligent decision-making process to identify the most suitable blood donors and blood banks based on location, availability, and urgency, ensuring fast and reliable blood allocation during emergencies.
           </p>
         </div>
       </div>
@@ -24,7 +25,7 @@ const AlgorithmExplanation = () => {
           <div>
             <h4 className="text-sm md:text-base font-semibold mb-1">Graph Construction</h4>
             <p className="text-xs md:text-sm text-muted-foreground">
-              All donor and blood bank locations are mapped as nodes in a weighted graph, with distances as edge weights.
+              All donors and blood banks are digitally represented within the system, where locations are connected based on real-world distances. This structure allows the application to efficiently analyze proximity between the requester and available blood sources.
             </p>
           </div>
         </div>
@@ -36,7 +37,7 @@ const AlgorithmExplanation = () => {
           <div>
             <h4 className="text-sm md:text-base font-semibold mb-1">Optimal Path Calculation</h4>
             <p className="text-xs md:text-sm text-muted-foreground">
-              Dijkstra's algorithm finds the shortest path from your location to each compatible donor/bank.
+              The system evaluates multiple possible routes from the requester’s location and determines the most efficient path to reach each compatible donor or blood bank, reducing response time in critical situations.
             </p>
           </div>
         </div>
@@ -48,20 +49,24 @@ const AlgorithmExplanation = () => {
           <div>
             <h4 className="text-sm md:text-base font-semibold mb-1">Priority Ranking</h4>
             <p className="text-xs md:text-sm text-muted-foreground">
-              Results are ranked by distance, availability status, and blood group compatibility for optimal allocation.
+              Identified blood sources are ranked according to:
+Distance from the requester,
+Current blood availability,
+Blood group compatibility
+This ranking ensures that the closest and most suitable blood source is selected first.
             </p>
           </div>
         </div>
       </div>
 
-      <div className="mt-4 p-3 md:p-4 bg-success/10 border border-success/20 rounded-lg">
+      {/* <div className="mt-4 p-3 md:p-4 bg-success/10 border border-success/20 rounded-lg">
         <div className="flex items-start gap-2">
           <Icon name="Info" size={16} color="var(--color-success)" className="flex-shrink-0 mt-0.5" />
           <p className="text-xs md:text-sm text-success-foreground">
             <span className="font-semibold">Time Complexity:</span> O((V + E) log V) where V = vertices (locations) and E = edges (connections)
           </p>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 };

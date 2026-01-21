@@ -15,7 +15,8 @@ const EmergencyRequestButton = ({ onRequestAmbulance, isRequesting }) => {
         </h2>
         
         <p className="text-sm md:text-base lg:text-lg text-red-700 dark:text-red-300 mb-6 md:mb-8 leading-relaxed">
-          Request immediate ambulance dispatch for critical medical emergencies.\nOur rapid response team will be notified instantly.
+          Request immediate ambulance dispatch for critical medical emergencies. <br />
+          Our rapid response team will be notified instantly.
         </p>
         
         <Button

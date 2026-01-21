@@ -21,6 +21,9 @@ const EmergencyStatusBanner = ({ alerts = [] }) => {
 
   const dismissAlert = (alertId) => {
     setVisibleAlerts(prev => prev?.filter(alert => alert?.id !== alertId));
+    if (onDismiss) {
+      onDismiss(alertId);
+    }
   };
 
   if (visibleAlerts?.length === 0) return null;

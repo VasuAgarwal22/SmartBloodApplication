@@ -32,7 +32,7 @@ const SearchFilters = ({
         </div>
         <div>
           <h2 className="text-lg md:text-xl font-semibold">Find Nearest Donors</h2>
-          <p className="text-xs md:text-sm text-muted-foreground">Search using graph + Dijkstra algorithm</p>
+          {/* <p className="text-xs md:text-sm text-muted-foreground">Search using graph + Dijkstra algorithm</p> */}
         </div>
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">

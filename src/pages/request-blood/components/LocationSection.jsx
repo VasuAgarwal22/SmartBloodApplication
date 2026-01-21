@@ -74,7 +74,7 @@ const LocationSection = ({ formData, errors, onChange }) => {
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium mb-1">Location Optimization</p>
             <p className="text-xs text-muted-foreground">
-              Accurate location helps us calculate optimal delivery routes and estimated arrival times using our Dijkstra algorithm implementation.
+             “Accurate location data enables us to calculate the fastest delivery routes and provide reliable estimated arrival times.”
             </p>
           </div>
         </div>

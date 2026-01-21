@@ -79,7 +79,8 @@ const AvailabilityPreview = ({ bloodGroup, location }) => {
             <div className="flex items-start gap-2">
               <Icon name="Info" size={16} className="text-primary flex-shrink-0 mt-0.5" />
               <p className="text-xs text-muted-foreground">
-                Delivery time calculated using Dijkstra's algorithm for optimal route planning
+                {/* Delivery time calculated using Dijkstra's algorithm for optimal route planning */}
+                “Delivery time is estimated by analyzing the fastest available routes in real time.”
               </p>
             </div>
           </div>

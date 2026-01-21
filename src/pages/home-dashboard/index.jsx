@@ -11,7 +11,13 @@ import TrustBadges from './components/TrustBadges';
 import InventoryStatus from './components/InventoryStatus';
 
 const HomeDashboard = () => {
-  const [alerts, setAlerts] = useState([
+  // Configurable delay for system status popup (in milliseconds)
+  const SYSTEM_STATUS_DELAY = 12000; // 12 seconds
+
+  const [alerts, setAlerts] = useState([]);
+  const [systemStatusShown, setSystemStatusShown] = useState(false);
+
+  const systemAlerts = [
     {
       id: 1,
       severity: 'critical',
@@ -25,12 +31,12 @@ const HomeDashboard = () => {
       id: 2,
       severity: 'warning',
       title: 'High Priority Request',
-      message: '3 emergency requests pending allocation in the priority queue.',
+      message: '3 emergency requests pending allocation in the emergency queue.',
       actionLabel: 'Review Queue',
-      onAction: () => console.log('Navigate to priority queue'),
+      onAction: () => console.log('Navigate to emergency queue'),
       dismissed: false
     }
-  ]);
+  ];
 
   const [notifications, setNotifications] = useState([
     {
@@ -126,7 +132,7 @@ const HomeDashboard = () => {
       id: 2,
       type: 'allocation',
       title: 'Blood Allocated Successfully',
-      description: 'A+ blood (4 units) allocated to City General Hospital via priority queue',
+      description: 'A+ blood (4 units) allocated to City General Hospital via emergency queue',
       timestamp: new Date(Date.now() - 420000)
     },
     {
@@ -179,14 +185,39 @@ const HomeDashboard = () => {
     return () => clearTimeout(timer);
   }, []);
 
+  // Delayed system status popup
+  useEffect(() => {
+    // Check if user has already dismissed the system status popup
+    const dismissed = localStorage.getItem('systemStatusDismissed');
+    if (dismissed) {
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      if (!systemStatusShown) {
+        setAlerts(systemAlerts);
+        setSystemStatusShown(true);
+      }
+    }, SYSTEM_STATUS_DELAY);
+
+    return () => clearTimeout(timer);
+  }, [systemStatusShown, SYSTEM_STATUS_DELAY]);
+
+  // Handle alert dismissal
+  const handleDismissAlert = (alertId) => {
+    setAlerts(prev => prev.filter(alert => alert.id !== alertId));
+    // Store dismissal in localStorage to prevent showing again
+    localStorage.setItem('systemStatusDismissed', 'true');
+  };
+
   return (
     <>
       <Helmet>
-        <title>Home Dashboard - SmartBloodAllocation</title>
+        <title>Home Dashboard - SmartBloodApplication</title>
         <meta name="description" content="Central command center for emergency blood allocation with real-time priority management and optimization" />
       </Helmet>
       <Header />
-      <EmergencyStatusBanner alerts={alerts} />
+      <EmergencyStatusBanner alerts={alerts} onDismiss={handleDismissAlert} />
       <NotificationToast notifications={notifications} onDismiss={handleDismissNotification} />
       <EmergencyFAB />
       <main className="content-main bg-background">
@@ -195,11 +226,10 @@ const HomeDashboard = () => {
           <div className="mb-8 md:mb-12">
             <div className="text-center mb-6 md:mb-8">
               <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-3 md:mb-4">
-                Smart Blood Allocation System
+                Smart Blood Application System
               </h1>
               <p className="text-base md:text-lg text-muted-foreground max-w-3xl mx-auto">
-                Algorithm-driven emergency blood allocation with real-time priority management, 
-                intelligent routing, and wastage prevention for life-saving healthcare delivery
+              “Intelligent emergency blood allocation with real-time request handling, smart routing, and reliable delivery.”
               </p>
             </div>
 
@@ -255,12 +285,11 @@ const HomeDashboard = () => {
           {/* Footer Info */}
           <div className="bg-card rounded-xl border-2 border-border p-6 md:p-8 text-center">
             <p className="text-sm md:text-base text-muted-foreground mb-4">
-              SmartBloodAllocation uses advanced algorithms including Priority Queues, Min-Heap structures, 
-              and Dijkstra's algorithm for optimal blood allocation and delivery route optimization.
+             “SmartBloodApplication intelligently manages emergency blood requests to ensure timely, reliable, and efficient delivery.”
             </p>
             <p className="text-xs md:text-sm text-muted-foreground caption">
-              &copy; {new Date()?.getFullYear()} SmartBloodAllocation. All rights reserved. 
-              HIPAA Compliant | ISO 27001 Certified | FDA Registered
+              &copy; {new Date()?.getFullYear()} SmartBloodApplication. All rights reserved. 
+              {/* HIPAA Compliant | ISO 27001 Certified | FDA Registered */}
             </p>
           </div>
         </div>

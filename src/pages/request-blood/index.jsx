@@ -206,7 +206,7 @@ const RequestBlood = () => {
           title: 'Request Submitted Successfully',
           message: `Request ID: ${requestId}. Priority Score: ${priorityScore}. Estimated processing: 15-20 minutes`,
           action: {
-            label: 'View Priority Queue',
+            label: 'View Emergency Queue',
             onClick: () => navigate('/emergency-priority-queue')
           }
         });
@@ -398,7 +398,7 @@ const RequestBlood = () => {
             <div className="flex-1 min-w-0">
               <h4 className="font-semibold mb-2">How Priority Allocation Works</h4>
               <p className="text-sm text-muted-foreground mb-3">
-                Our algorithm-driven system uses a max-heap priority queue to ensure critical cases receive immediate attention while optimizing delivery routes and preventing blood wastage.
+                “Our intelligent system ensures critical cases receive immediate attention while optimizing delivery routes and reducing blood wastage.”
               </p>
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li className="flex items-start gap-2">

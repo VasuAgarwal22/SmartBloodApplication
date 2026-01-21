@@ -294,8 +294,8 @@ const EmergencyPriorityQueue = () => {
   return (
     <>
       <Helmet>
-        <title>Emergency Priority Queue - SmartBloodAllocation</title>
-        <meta name="description" content="Real-time blood request priority queue with max-heap algorithm ordering for critical emergency allocation" />
+        <title>Live Emergency Requests - SmartBloodApplication</title>
+        <meta name="description" content="Real-time blood request emergency queue with max-heap algorithm ordering for critical emergency allocation" />
       </Helmet>
       <Header />
       <EmergencyStatusBanner alerts={alerts} />
@@ -307,9 +307,9 @@ const EmergencyPriorityQueue = () => {
           <div className="mb-6 md:mb-8">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-4">
               <div>
-                <h1 className="text-3xl md:text-4xl font-bold mb-2">Emergency Priority Queue</h1>
+                <h1 className="text-3xl md:text-4xl font-bold mb-2">Live Emergency Requests</h1>
                 <p className="text-sm md:text-base text-muted-foreground">
-                  Real-time blood request prioritization using max-heap algorithm
+                 “Real-time blood request prioritization based on urgency and availability.”
                 </p>
               </div>
               <div className="flex flex-wrap gap-3">
@@ -322,7 +322,7 @@ const EmergencyPriorityQueue = () => {
                       id: Date.now(),
                       type: 'success',
                       title: 'Queue Refreshed',
-                      message: 'Priority queue updated with latest requests',
+                      message: 'Emergency queue updated with latest requests',
                       timestamp: new Date()?.toISOString()
                     }]);
                   }}
@@ -345,9 +345,10 @@ const EmergencyPriorityQueue = () => {
               <div className="flex items-start gap-3">
                 <Icon name="Cpu" size={24} className="text-primary flex-shrink-0 mt-0.5" />
                 <div className="flex-1">
-                  <h3 className="text-sm md:text-base font-semibold text-primary mb-1">Max-Heap Priority Algorithm Active</h3>
+                  <h3 className="text-sm md:text-base font-semibold text-primary mb-1">Urgent Request Processing Active</h3>
                   <p className="text-xs md:text-sm text-muted-foreground">
-                    Requests are automatically ordered by priority score calculated from urgency level (Critical &gt; High &gt; Normal), wait time, verification status, and quantity. Queue positions update in real-time as new requests arrive or statuses change.
+                    {/* Requests are automatically ordered by priority score calculated from urgency level (Critical &gt; High &gt; Normal), wait time, verification status, and quantity. Queue positions update in real-time as new requests arrive or statuses change. */}
+                    “Requests are automatically prioritized based on urgency, waiting time, verification status, and required quantity. The order updates in real time as new requests are received or statuses change.”
                   </p>
                 </div>
               </div>
@@ -368,7 +369,7 @@ const EmergencyPriorityQueue = () => {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="text-xl md:text-2xl font-semibold">
-                Priority Queue ({filteredRequests?.length} {filteredRequests?.length === 1 ? 'Request' : 'Requests'})
+              Emergency Request List ({filteredRequests?.length} {filteredRequests?.length === 1 ? 'Request' : 'Requests'})
               </h2>
               {filteredRequests?.length > 0 && (
                 <p className="text-sm text-muted-foreground caption">

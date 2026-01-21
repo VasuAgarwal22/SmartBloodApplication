@@ -179,7 +179,7 @@ const NearestDonorFinder = () => {
   return (
     <>
       <Helmet>
-        <title>Nearest Donor Finder - SmartBloodAllocation</title>
+        <title>Nearest Donor Finder - SmartBloodApplication</title>
         <meta name="description" content="Find nearest blood donors and blood banks using advanced graph and Dijkstra algorithm for optimal route calculation" />
       </Helmet>
       <div className="min-h-screen bg-background">
@@ -195,7 +195,7 @@ const NearestDonorFinder = () => {
           <div className="mb-6 md:mb-8">
             <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-2">Nearest Donor Finder</h1>
             <p className="text-sm md:text-base text-muted-foreground">
-              Locate optimal blood sources using graph-based pathfinding algorithms
+              “Finding the nearest life-saving blood through intelligent pathfinding.”
             </p>
           </div>
 

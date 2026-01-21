@@ -374,14 +374,14 @@ const AdminDashboard = () => {
                 >
                   Main Dashboard
                 </Button>
-                <Button
+                {/* <Button
                   variant="outline"
                   iconName="ListOrdered"
                   iconPosition="left"
                   onClick={() => navigate('/emergency-priority-queue')}
                 >
                   Priority Queue
-                </Button>
+                </Button> */}
                 <Button
                   variant="outline"
                   iconName="Ambulance"

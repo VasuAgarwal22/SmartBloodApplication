@@ -13,7 +13,7 @@ const Header = () => {
   const navigationItems = [
     { label: 'Dashboard', path: '/home-dashboard', icon: 'LayoutDashboard' },
     { label: 'Request Blood', path: '/request-blood', icon: 'Droplet', emergencyLevel: 'critical' },
-    { label: 'Priority Queue', path: '/emergency-priority-queue', icon: 'ListOrdered' },
+    { label: 'Emergency Queue', path: '/emergency-priority-queue', icon: 'ListOrdered' },
     { label: 'Find Donors', path: '/nearest-donor-finder', icon: 'MapPin' },
     { label: 'Ambulance', path: '/ambulance-tracking', icon: 'Ambulance' }
   ];

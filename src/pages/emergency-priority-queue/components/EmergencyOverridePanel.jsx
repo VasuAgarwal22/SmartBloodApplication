@@ -62,7 +62,7 @@ const EmergencyOverridePanel = ({ onOverride, isVisible, onClose }) => {
               <div>
                 <p className="text-sm font-semibold text-warning mb-1">Critical Action Warning</p>
                 <p className="text-xs text-muted-foreground">
-                  Emergency overrides bypass normal priority queue ordering. This action will be logged and audited. Use only for life-threatening situations.
+                  Emergency overrides bypass normal emergency queue ordering. This action will be logged and audited. Use only for life-threatening situations.
                 </p>
               </div>
             </div>
