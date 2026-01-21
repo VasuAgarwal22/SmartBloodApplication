@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
-import { supabase } from '../lib/supabase'
+import { apiClient } from '../lib/api'
 
 const AuthContext = createContext({})
 
@@ -17,103 +17,88 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true)
   const [profileLoading, setProfileLoading] = useState(false)
 
-  // Isolated async operations - never called from auth callbacks
+  // Profile operations
   const profileOperations = {
-    async load(userId) {
-      if (!userId) return
-      setProfileLoading(true)
-      try {
-        const { data, error } = await supabase?.from('user_profiles')?.select('*')?.eq('id', userId)?.single()
-        if (!error) setUserProfile(data)
-      } catch (error) {
-        console.error('Profile load error:', error)
-      } finally {
-        setProfileLoading(false)
-      }
-    },
-
     clear() {
       setUserProfile(null)
       setProfileLoading(false)
     }
   }
 
-  // Auth state handlers - PROTECTED from async modification
-  const authStateHandlers = {
-    // This handler MUST remain synchronous - Supabase requirement
-    onChange: (event, session) => {
-      setUser(session?.user ?? null)
-      setLoading(false)
-      
-      if (session?.user) {
-        profileOperations.load(session.user.id) // Fire-and-forget
-      } else {
-        profileOperations.clear()
+  useEffect(() => {
+    // Initial session check from localStorage
+    const token = localStorage.getItem('authToken');
+    const userData = localStorage.getItem('userData');
+
+    if (token && userData) {
+      try {
+        const user = JSON.parse(userData);
+        setUser(user);
+      } catch (error) {
+        console.error('Error parsing stored user data:', error);
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('userData');
       }
     }
-  }
 
-  useEffect(() => {
-    // Initial session check
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      authStateHandlers.onChange(null, session)
-    })
-
-    // CRITICAL: This must remain synchronous
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      authStateHandlers.onChange
-    )
-
-    return () => subscription?.unsubscribe()
+    setLoading(false);
   }, [])
 
   // Auth methods
   const signIn = async (email, password) => {
     try {
-      const { data, error } = await supabase?.auth?.signInWithPassword({ email, password })
-      return { data, error }
+      const response = await apiClient.login(email, password);
+      if (response.token && response.user) {
+        localStorage.setItem('authToken', response.token);
+        localStorage.setItem('userData', JSON.stringify(response.user));
+        setUser(response.user);
+        return { data: response, error: null };
+      } else {
+        return { data: null, error: { message: response.message || 'Login failed' } };
+      }
     } catch (error) {
-      return { error: { message: 'Network error. Please try again.' } }
+      return { data: null, error: { message: error.message || 'Network error. Please try again.' } };
     }
   }
 
   const signUp = async (email, password) => {
     try {
-      const { data, error } = await supabase?.auth?.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/login`
-        }
-      })
-      return { data, error }
+      const response = await apiClient.register(email, password);
+      return { data: response, error: null };
     } catch (error) {
-      return { error: { message: 'Network error. Please try again.' } }
+      return { data: null, error: { message: error.message || 'Network error. Please try again.' } };
     }
   }
 
   const signOut = async () => {
     try {
-      const { error } = await supabase?.auth?.signOut()
-      if (!error) {
-        setUser(null)
-        profileOperations.clear()
-      }
-      return { error }
+      await apiClient.logout();
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('userData');
+      setUser(null);
+      setUserProfile(null);
+      return { error: null };
     } catch (error) {
-      return { error: { message: 'Network error. Please try again.' } }
+      // Even if logout fails on server, clear local state
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('userData');
+      setUser(null);
+      setUserProfile(null);
+      return { error: null };
     }
   }
 
   const updateProfile = async (updates) => {
     if (!user) return { error: { message: 'No user logged in' } }
-    
+
     try {
-      const { data, error } = await supabase?.from('user_profiles')?.update(updates)?.eq('id', user?.id)?.select()?.single()
-      if (!error) setUserProfile(data)
-      return { data, error }
+      // For now, we'll update local state
+      // This can be expanded to call a profile update endpoint
+      const updatedProfile = { ...userProfile, ...updates };
+      setUserProfile(updatedProfile);
+      return { data: updatedProfile, error: null };
     } catch (error) {
-      return { error: { message: 'Network error. Please try again.' } }
+      return { data: null, error: { message: error.message || 'Network error. Please try again.' } };
     }
   }
 
