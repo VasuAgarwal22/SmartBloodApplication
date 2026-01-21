@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Icon from '../AppIcon';
 import Button from '../ui/Button';
+import { useAuth } from '../../contexts/AuthContext';
 
 const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, signOut } = useAuth();
 
   const navigationItems = [
     { label: 'Dashboard', path: '/home-dashboard', icon: 'LayoutDashboard' },
@@ -77,6 +80,20 @@ const Header = () => {
           </nav>
 
           <div className="header-actions">
+            {user && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="hidden lg:flex"
+                onClick={async () => {
+                  await signOut();
+                  navigate('/login');
+                }}
+              >
+                <Icon name="LogOut" size={18} />
+                <span className="ml-2">Logout</span>
+              </Button>
+            )}
             <Button
               variant="ghost"
               size="icon"
@@ -115,6 +132,21 @@ const Header = () => {
               </Link>
             ))}
             
+            {user && (
+              <button
+                className="header-mobile-nav-item mt-4"
+                onClick={async () => {
+                  await signOut();
+                  navigate('/login');
+                  closeMobileMenu();
+                }}
+              >
+                <span className="flex items-center gap-3">
+                  <Icon name="LogOut" size={20} />
+                  Logout
+                </span>
+              </button>
+            )}
             <button
               className="header-mobile-nav-item mt-4"
               onClick={() => {
