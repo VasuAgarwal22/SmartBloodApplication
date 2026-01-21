@@ -190,7 +190,48 @@ const RequestBlood = () => {
       });
     }, 200);
 
-    setTimeout(() => {
+    try {
+      const requestData = {
+        patientName: formData.patientName,
+        bloodGroup: formData.bloodGroup,
+        quantity: formData.quantity,
+        patientContact: formData.patientContact,
+        urgencyLevel: formData.urgencyLevel,
+        requesterType: formData.requesterType,
+        requesterName: formData.requesterName,
+        verificationId: formData.verificationId,
+        requesterContact: formData.requesterContact,
+        requesterEmail: formData.requesterEmail,
+        facilityName: formData.facilityName,
+        address: formData.address,
+        city: formData.city,
+        state: formData.state,
+        zipCode: formData.zipCode
+      };
+
+      const response = await fetch('http://localhost:5000/api/blood-requests', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify(requestData)
+      });
+
+      if (!response.ok) {
+        let errorMessage = 'Failed to submit request';
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.message || errorMessage;
+        } catch (parseError) {
+          // If response is not JSON, use status text
+          errorMessage = response.statusText || errorMessage;
+        }
+        throw new Error(`${response.status}: ${errorMessage}`);
+      }
+
+      const result = await response.json();
+
       clearInterval(progressInterval);
       setLoadingProgress(100);
 
@@ -198,13 +239,10 @@ const RequestBlood = () => {
         setIsLoading(false);
         setLoadingProgress(0);
 
-        const priorityScore = calculatePriorityScore();
-        const requestId = `REQ-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
-
         addNotification({
           type: 'success',
           title: 'Request Submitted Successfully',
-          message: `Request ID: ${requestId}. Priority Score: ${priorityScore}. Estimated processing: 15-20 minutes`,
+          message: `Request ID: ${result.requestId}. Priority Score: ${result.priorityScore}. Estimated processing: 15-20 minutes`,
           action: {
             label: 'View Priority Queue',
             onClick: () => navigate('/emergency-priority-queue')
@@ -215,7 +253,17 @@ const RequestBlood = () => {
           navigate('/emergency-priority-queue');
         }, 3000);
       }, 500);
-    }, 2000);
+    } catch (error) {
+      clearInterval(progressInterval);
+      setIsLoading(false);
+      setLoadingProgress(0);
+
+      addNotification({
+        type: 'error',
+        title: 'Submission Failed',
+        message: error.message || 'Failed to submit blood request. Please try again.'
+      });
+    }
   };
 
   const calculatePriorityScore = () => {

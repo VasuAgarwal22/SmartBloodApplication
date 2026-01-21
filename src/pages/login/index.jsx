@@ -1,9 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
+import { motion } from 'framer-motion';
 import { useAuth } from '../../contexts/AuthContext';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
+import AppImage from '../../components/AppImage';
+import Icon from '../../components/AppIcon';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -16,19 +19,42 @@ const Login = () => {
   const [success, setSuccess] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
+  const [emailValid, setEmailValid] = useState(null);
+  const [passwordValid, setPasswordValid] = useState(null);
+  const [confirmPasswordValid, setConfirmPasswordValid] = useState(null);
+  const [shake, setShake] = useState(false);
 
   const from = location.state?.from?.pathname || '/';
+
+  // Real-time validation
+  useEffect(() => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    setEmailValid(email ? (emailRegex.test(email) ? true : false) : null);
+  }, [email]);
+
+  useEffect(() => {
+    setPasswordValid(password ? (password.length >= 8 ? true : false) : null);
+  }, [password]);
+
+  useEffect(() => {
+    if (isSignUp) {
+      setConfirmPasswordValid(confirmPassword ? (confirmPassword === password ? true : false) : null);
+    }
+  }, [confirmPassword, password, isSignUp]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setSuccess('');
+    setShake(false);
     setIsSubmitting(true);
 
     try {
       if (isSignUp) {
         if (password !== confirmPassword) {
           setError('Passwords do not match');
+          setShake(true);
+          setTimeout(() => setShake(false), 500);
           setIsSubmitting(false);
           return;
         }
@@ -36,6 +62,8 @@ const Login = () => {
         const { data, error } = await signUp(email, password);
         if (error) {
           setError(error.message);
+          setShake(true);
+          setTimeout(() => setShake(false), 500);
         } else if (data?.user && !data?.user?.email_confirmed_at) {
           setSuccess('Account created successfully! Please check your email to confirm your account before signing in.');
           setIsSignUp(false);
@@ -47,12 +75,17 @@ const Login = () => {
         const { error } = await signIn(email, password);
         if (error) {
           setError(error.message);
+          setShake(true);
+          setTimeout(() => setShake(false), 500);
         } else {
-          navigate(from, { replace: true });
+          // Success feedback before redirect
+          setTimeout(() => navigate(from, { replace: true }), 1000);
         }
       }
     } catch (err) {
       setError('An unexpected error occurred. Please try again.');
+      setShake(true);
+      setTimeout(() => setShake(false), 500);
     } finally {
       setIsSubmitting(false);
     }
@@ -77,8 +110,18 @@ const Login = () => {
       </Helmet>
       <div className="min-h-screen flex items-center justify-center bg-background px-4">
         <div className="max-w-md w-full">
-          <div className="bg-card border border-border rounded-xl shadow-elevation-lg p-8">
+          <motion.div
+            className={`bg-card border border-border rounded-xl shadow-elevation-lg p-8 ${shake ? 'animate-shake' : ''}`}
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, ease: 'easeOut' }}
+          >
             <div className="text-center mb-8">
+              <AppImage
+                src="/assets/blood-image.jpeg"
+                alt="Blood Donation Image"
+                className="w-24 h-24 mx-auto mb-4 rounded-full object-cover"
+              />
               <h1 className="text-2xl font-bold mb-2">
                 {isSignUp ? 'Create Account' : 'Welcome Back'}
               </h1>
@@ -90,52 +133,64 @@ const Login = () => {
               </p>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium mb-2">
-                  Email Address
-                </label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter your email"
-                  required
-                  disabled={isSubmitting}
-                />
-              </div>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <Input
+                id="email"
+                type="email"
+                label="Email Address"
+                floating
+                isValid={emailValid}
+                helperText="Enter a valid email address"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter your email"
+                required
+                disabled={isSubmitting}
+              />
 
               <div>
-                <label htmlFor="password" className="block text-sm font-medium mb-2">
-                  Password
-                </label>
                 <Input
                   id="password"
                   type="password"
+                  label="Password"
+                  floating
+                  isValid={passwordValid}
+                  helperText="Password must be at least 8 characters"
+                  showPasswordToggle
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter your password"
                   required
                   disabled={isSubmitting}
                 />
+                {!isSignUp && (
+                  <div className="mt-1 text-right">
+                    <button
+                      type="button"
+                      className="text-sm text-primary hover:text-primary/80 underline"
+                      onClick={() => alert("Forgot Password functionality not implemented yet")}
+                    >
+                      Forgot Password?
+                    </button>
+                  </div>
+                )}
               </div>
 
               {isSignUp && (
-                <div>
-                  <label htmlFor="confirmPassword" className="block text-sm font-medium mb-2">
-                    Confirm Password
-                  </label>
-                  <Input
-                    id="confirmPassword"
-                    type="password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    placeholder="Confirm your password"
-                    required
-                    disabled={isSubmitting}
-                  />
-                </div>
+                <Input
+                  id="confirmPassword"
+                  type="password"
+                  label="Confirm Password"
+                  floating
+                  isValid={confirmPasswordValid}
+                  helperText="Passwords must match"
+                  showPasswordToggle
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="Confirm your password"
+                  required
+                  disabled={isSubmitting}
+                />
               )}
 
               {error && (
@@ -152,15 +207,17 @@ const Login = () => {
 
               <Button
                 type="submit"
-                variant="default"
+                variant={success ? "success" : "default"}
                 size="lg"
-                className="w-full"
+                className={`w-full transition-transform duration-150 hover:scale-105 active:scale-95 ${success ? 'animate-pulse' : ''}`}
                 disabled={isSubmitting}
-                iconName={isSubmitting ? "Loader2" : undefined}
+                iconName={isSubmitting ? "Loader2" : success ? "Check" : undefined}
                 iconPosition="left"
               >
                 {isSubmitting
                   ? (isSignUp ? 'Creating Account...' : 'Signing In...')
+                  : success
+                  ? 'Success!'
                   : (isSignUp ? 'Create Account' : 'Sign In')
                 }
               </Button>
@@ -187,12 +244,19 @@ const Login = () => {
               </button>
             </div>
 
-            <div className="mt-4 text-center">
+            <div className="mt-4 text-center flex items-center justify-center space-x-2">
+              <Icon name="Shield" size={16} className="text-primary" />
               <p className="text-sm text-muted-foreground">
                 Secure access to emergency blood allocation system
               </p>
+              <div className="relative group">
+                <Icon name="Info" size={14} className="text-muted-foreground cursor-help" />
+                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">
+                  Your credentials are encrypted
+                </div>
+              </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
     </>
