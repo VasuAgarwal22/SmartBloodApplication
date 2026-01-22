@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
-import { apiClient } from '../lib/api'
+import { supabase, TABLES } from '../lib/supabase'
 
 const AuthContext = createContext({})
 
@@ -26,75 +26,163 @@ export const AuthProvider = ({ children }) => {
   }
 
   useEffect(() => {
-    // Initial session check from localStorage
-    const token = localStorage.getItem('authToken');
-    const userData = localStorage.getItem('userData');
+    // Get initial session
+    const getInitialSession = async () => {
+      const { data: { session }, error } = await supabase.auth.getSession();
 
-    if (token && userData) {
-      try {
-        const user = JSON.parse(userData);
-        setUser(user);
-      } catch (error) {
-        console.error('Error parsing stored user data:', error);
-        localStorage.removeItem('authToken');
-        localStorage.removeItem('userData');
+      if (session?.user) {
+        setUser(session.user);
+
+        // Fetch user profile
+        try {
+          const { data: profileData, error: profileError } = await supabase
+            .from(TABLES.USER_PROFILES)
+            .select('*')
+            .eq('id', session.user.id)
+            .single();
+
+          if (profileData && !profileError) {
+            setUserProfile(profileData);
+            localStorage.setItem('userProfile', JSON.stringify(profileData));
+          }
+        } catch (profileError) {
+          console.error('Error fetching user profile:', profileError);
+        }
       }
-    }
 
-    setLoading(false);
+      setLoading(false);
+    };
+
+    getInitialSession();
+
+    // Listen for auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (session?.user) {
+          setUser(session.user);
+
+          // Fetch user profile
+          try {
+            const { data: profileData, error: profileError } = await supabase
+              .from(TABLES.USER_PROFILES)
+              .select('*')
+              .eq('id', session.user.id)
+              .single();
+
+            if (profileData && !profileError) {
+              setUserProfile(profileData);
+              localStorage.setItem('userProfile', JSON.stringify(profileData));
+            }
+          } catch (profileError) {
+            console.error('Error fetching user profile:', profileError);
+          }
+        } else {
+          setUser(null);
+          setUserProfile(null);
+          localStorage.removeItem('userProfile');
+        }
+      }
+    );
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, [])
 
   // Auth methods
   const signIn = async (email, password) => {
     try {
-      const response = await apiClient.login(email, password);
-      if (response.token && response.user) {
-        localStorage.setItem('authToken', response.token);
-        localStorage.setItem('userData', JSON.stringify(response.user));
-        setUser(response.user);
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-        // Fetch user profile with role
-        try {
-          const profileResponse = await apiClient.getProfile();
-          if (profileResponse.profile) {
-            setUserProfile(profileResponse.profile);
-            localStorage.setItem('userProfile', JSON.stringify(profileResponse.profile));
-          }
-        } catch (profileError) {
-          console.error('Error fetching user profile:', profileError);
-          // Continue with login even if profile fetch fails
-        }
-
-        return { data: response, error: null };
-      } else {
-        return { data: null, error: { message: response.message || 'Login failed' } };
+      if (error) {
+        return { data: null, error };
       }
+
+      // Check if email is verified
+      if (data.user && !data.user.email_confirmed_at) {
+        // Sign out the user since email is not verified
+        await supabase.auth.signOut();
+        return {
+          data: null,
+          error: { message: 'Email not verified. Please verify your email first.' }
+        };
+      }
+
+      // User profile will be fetched automatically by the auth state change listener
+      return { data, error: null };
     } catch (error) {
+      console.error('Sign in error:', error);
       return { data: null, error: { message: error.message || 'Network error. Please try again.' } };
     }
   }
 
   const signUp = async (email, password, full_name, role = 'user') => {
     try {
-      const response = await apiClient.register(email, password, full_name, role);
-      return { data: response, error: null };
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name,
+            role,
+          },
+        },
+      });
+
+      if (error) {
+        return { data: null, error };
+      }
+
+      // Create user profile in the database
+      if (data.user) {
+        try {
+          const { error: profileError } = await supabase
+            .from(TABLES.USER_PROFILES)
+            .insert([
+              {
+                id: data.user.id,
+                email: data.user.email,
+                full_name,
+                role,
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString(),
+              },
+            ]);
+
+          if (profileError) {
+            console.error('Error creating user profile:', profileError);
+            // Don't fail signup if profile creation fails
+          }
+        } catch (profileError) {
+          console.error('Error creating user profile:', profileError);
+          // Don't fail signup if profile creation fails
+        }
+      }
+
+      return { data, error: null };
     } catch (error) {
+      console.error('Sign up error:', error);
       return { data: null, error: { message: error.message || 'Network error. Please try again.' } };
     }
   }
 
   const signOut = async () => {
     try {
-      await apiClient.logout();
-      localStorage.removeItem('authToken');
-      localStorage.removeItem('userData');
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.error('Sign out error:', error);
+      }
+      localStorage.removeItem('userProfile');
       setUser(null);
       setUserProfile(null);
-      return { error: null };
+      return { error };
     } catch (error) {
+      console.error('Sign out error:', error);
       // Even if logout fails on server, clear local state
-      localStorage.removeItem('authToken');
-      localStorage.removeItem('userData');
+      localStorage.removeItem('userProfile');
       setUser(null);
       setUserProfile(null);
       return { error: null };

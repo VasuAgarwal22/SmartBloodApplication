@@ -83,12 +83,13 @@ const Input = React.forwardRef(({
     // Validation classes
     let validationClasses = "";
     let validationIcon = null;
+    const validationIconPosition = showPasswordToggle ? "right-10" : "right-3";
     if (isValid === true) {
         validationClasses = "border-green-500 focus-visible:ring-green-500";
-        validationIcon = <Icon name="Check" size={16} className="absolute right-10 top-1/2 transform -translate-y-1/2 text-green-500" />;
+        validationIcon = <Icon name="Check" size={16} className={`absolute ${validationIconPosition} top-1/2 transform -translate-y-1/2 text-green-500`} />;
     } else if (isValid === false) {
         validationClasses = "border-red-500 focus-visible:ring-red-500";
-        validationIcon = <Icon name="X" size={16} className="absolute right-10 top-1/2 transform -translate-y-1/2 text-red-500" />;
+        validationIcon = <Icon name="X" size={16} className={`absolute ${validationIconPosition} top-1/2 transform -translate-y-1/2 text-red-500`} />;
     }
 
     // For regular inputs with wrapper structure
@@ -112,9 +113,9 @@ const Input = React.forwardRef(({
                     <label
                         htmlFor={inputId}
                         className={cn(
-                            "absolute left-3 transition-all duration-200 pointer-events-none z-10",
+                            "absolute left-3 transition-all duration-200 pointer-events-none z-10 bg-background",
                             shouldFloat
-                                ? "top-2 text-xs text-primary bg-background px-1 -translate-y-0"
+                                ? "top-0.5 text-xs text-primary px-1 -translate-y-0"
                                 : "top-1/2 text-sm text-muted-foreground -translate-y-1/2",
                             error && "text-destructive",
                             isValid === true && "text-green-600",

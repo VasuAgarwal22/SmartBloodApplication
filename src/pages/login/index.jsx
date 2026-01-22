@@ -74,12 +74,20 @@ const Login = () => {
           setError(error.message);
           setShake(true);
           setTimeout(() => setShake(false), 500);
-        } else if (data?.user && !data?.user?.email_confirmed_at) {
-          setSuccess('Account created successfully! Please check your email to confirm your account before signing in.');
-          setIsSignUp(false);
         } else {
-          setSuccess('Account created successfully! You can now sign in.');
+          // Account created successfully, but email verification is required
+          setSuccess('Please check your email and verify your account before signing in.');
           setIsSignUp(false);
+          // Clear form fields
+          setEmail('');
+          setPassword('');
+          setConfirmPassword('');
+          setFullName('');
+          setRole('user');
+          setEmailValid(null);
+          setPasswordValid(null);
+          setConfirmPasswordValid(null);
+          setFullNameValid(null);
         }
       } else {
         const { error } = await signIn(email, password);
@@ -153,7 +161,6 @@ const Login = () => {
                 helperText="Enter a valid email address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="Enter your email"
                 required
                 disabled={isSubmitting}
               />
@@ -164,12 +171,10 @@ const Login = () => {
                   type="password"
                   label="Password"
                   floating
-                  isValid={passwordValid}
                   helperText="Password must be at least 8 characters"
                   showPasswordToggle
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter your password"
                   required
                   disabled={isSubmitting}
                 />
@@ -193,12 +198,10 @@ const Login = () => {
                     type="password"
                     label="Confirm Password"
                     floating
-                    isValid={confirmPasswordValid}
                     helperText="Passwords must match"
                     showPasswordToggle
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    placeholder="Confirm your password"
                     required
                     disabled={isSubmitting}
                   />
@@ -212,7 +215,6 @@ const Login = () => {
                     helperText="Enter your full name"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
-                    placeholder="Enter your full name"
                     required
                     disabled={isSubmitting}
                   />
@@ -249,17 +251,15 @@ const Login = () => {
 
               <Button
                 type="submit"
-                variant={success ? "success" : "default"}
+                variant="default"
                 size="lg"
-                className={`w-full transition-transform duration-150 hover:scale-105 active:scale-95 ${success ? 'animate-pulse' : ''}`}
+                className="w-full transition-transform duration-150 hover:scale-105 active:scale-95"
                 disabled={isSubmitting}
-                iconName={isSubmitting ? "Loader2" : success ? "Check" : undefined}
+                iconName={isSubmitting ? "Loader2" : undefined}
                 iconPosition="left"
               >
                 {isSubmitting
                   ? (isSignUp ? 'Creating Account...' : 'Signing In...')
-                  : success
-                  ? 'Success!'
                   : (isSignUp ? 'Create Account' : 'Sign In')
                 }
               </Button>

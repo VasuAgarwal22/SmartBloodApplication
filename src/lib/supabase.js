@@ -1,48 +1,13 @@
-import { apiClient } from './api';
+import { createClient } from '@supabase/supabase-js'
 
-// For backward compatibility, we'll keep the supabase export but route through API
-export const supabase = {
-  from: (table) => ({
-    select: (columns = '*') => ({
-      eq: (column, value) => ({
-        single: async () => {
-          // This is a simplified implementation
-          // In a real app, you'd need more sophisticated query handling
-          console.warn('Using legacy supabase.from() API. Consider migrating to apiClient.');
-          return { data: null, error: { message: 'Legacy API not fully implemented' } };
-        }
-      }),
-      order: (column, options) => ({
-        async: async () => {
-          console.warn('Using legacy supabase.from() API. Consider migrating to apiClient.');
-          return { data: [], error: { message: 'Legacy API not fully implemented' } };
-        }
-      })
-    }),
-    insert: (data) => ({
-      select: () => ({
-        single: async () => {
-          console.warn('Using legacy supabase.from() API. Consider migrating to apiClient.');
-          return { data: null, error: { message: 'Legacy API not fully implemented' } };
-        }
-      })
-    }),
-    update: (updates) => ({
-      eq: (column, value) => ({
-        select: () => ({
-          single: async () => {
-            console.warn('Using legacy supabase.from() API. Consider migrating to apiClient.');
-            return { data: null, error: { message: 'Legacy API not fully implemented' } };
-          }
-        })
-      })
-    })
-  }),
-  auth: {
-    getSession: async () => ({ data: { session: null } }),
-    onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } })
-  }
-};
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error('Missing Supabase environment variables. Please check your .env file.')
+}
+
+export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 // Database table names
 export const TABLES = {
