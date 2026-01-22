@@ -12,6 +12,7 @@ class ApiClient {
         'Content-Type': 'application/json',
         ...options.headers,
       },
+      credentials: 'include',
       ...options,
     };
 
@@ -44,10 +45,10 @@ class ApiClient {
     });
   }
 
-  async register(email, password) {
+  async register(email, password, full_name, role = 'user') {
     return this.request('/auth/register', {
       method: 'POST',
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ email, password, full_name, role }),
     });
   }
 
@@ -55,6 +56,10 @@ class ApiClient {
     return this.request('/auth/logout', {
       method: 'POST',
     });
+  }
+
+  async getProfile() {
+    return this.request('/auth/profile');
   }
 
   // Blood Requests
@@ -119,6 +124,131 @@ class ApiClient {
       method: 'POST',
       body: JSON.stringify({ date, period, metrics }),
     });
+  }
+
+  // ===== ROLE-BASED API METHODS =====
+
+  // USER DASHBOARD METHODS
+  async getUserBloodRequests() {
+    return this.request('/user/blood-requests');
+  }
+
+  async createUserBloodRequest(requestData) {
+    return this.request('/user/blood-requests', {
+      method: 'POST',
+      body: JSON.stringify(requestData),
+    });
+  }
+
+  async getUserDonorProfile() {
+    return this.request('/user/donor-profile');
+  }
+
+  async updateUserDonorProfile(profileData) {
+    return this.request('/user/donor-profile', {
+      method: 'PUT',
+      body: JSON.stringify(profileData),
+    });
+  }
+
+  async getNearbyBloodBanks(params = {}) {
+    const queryParams = new URLSearchParams(params).toString();
+    return this.request(`/user/nearby-blood-banks?${queryParams}`);
+  }
+
+  async getUserActivity() {
+    return this.request('/user/activity');
+  }
+
+  // HOSPITAL DASHBOARD METHODS
+  async getHospitalBloodRequests(filters = {}) {
+    const queryParams = new URLSearchParams(filters).toString();
+    return this.request(`/hospital/blood-requests?${queryParams}`);
+  }
+
+  async updateHospitalBloodRequestStatus(id, status, notes = '') {
+    return this.request(`/hospital/blood-requests/${id}/status`, {
+      method: 'PUT',
+      body: JSON.stringify({ status, notes }),
+    });
+  }
+
+  async getHospitalEmergencyQueue() {
+    return this.request('/hospital/emergency-queue');
+  }
+
+  async assignAmbulanceToEmergency(queueId, ambulanceId) {
+    return this.request(`/hospital/emergency-queue/${queueId}/assign-ambulance`, {
+      method: 'POST',
+      body: JSON.stringify({ ambulance_id: ambulanceId }),
+    });
+  }
+
+  async getHospitalInventory(filters = {}) {
+    const queryParams = new URLSearchParams(filters).toString();
+    return this.request(`/hospital/inventory?${queryParams}`);
+  }
+
+  async updateHospitalInventory(id, updates) {
+    return this.request(`/hospital/inventory/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(updates),
+    });
+  }
+
+  async getHospitalAmbulances(filters = {}) {
+    const queryParams = new URLSearchParams(filters).toString();
+    return this.request(`/hospital/ambulances?${queryParams}`);
+  }
+
+  async updateHospitalAmbulanceStatus(id, status, currentLocation = null) {
+    return this.request(`/hospital/ambulances/${id}/status`, {
+      method: 'PUT',
+      body: JSON.stringify({ status, current_location: currentLocation }),
+    });
+  }
+
+  async getHospitalMetrics() {
+    return this.request('/hospital/metrics');
+  }
+
+  // ADMIN DASHBOARD METHODS
+  async getAllBloodRequests(filters = {}) {
+    const queryParams = new URLSearchParams(filters).toString();
+    return this.request(`/admin/blood-requests?${queryParams}`);
+  }
+
+  async getAllInventory(filters = {}) {
+    const queryParams = new URLSearchParams(filters).toString();
+    return this.request(`/admin/inventory?${queryParams}`);
+  }
+
+  async getAllAmbulances(filters = {}) {
+    const queryParams = new URLSearchParams(filters).toString();
+    return this.request(`/admin/ambulances?${queryParams}`);
+  }
+
+  async getAllDonors(filters = {}) {
+    const queryParams = new URLSearchParams(filters).toString();
+    return this.request(`/admin/donors?${queryParams}`);
+  }
+
+  async getAdminEmergencyQueue() {
+    return this.request('/admin/emergency-queue');
+  }
+
+  async getAdminMetrics() {
+    return this.request('/admin/metrics');
+  }
+
+  async getActivityLogs(filters = {}) {
+    const queryParams = new URLSearchParams(filters).toString();
+    return this.request(`/admin/activity-logs?${queryParams}`);
+  }
+
+  async getUserProfiles(filters = {}) {
+    const queryParams = new URLSearchParams(filters).toString();
+    return this.request(`/admin/user-profiles?${queryParams}`);
   }
 }
 

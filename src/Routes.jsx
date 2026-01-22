@@ -5,6 +5,7 @@ import ErrorBoundary from "components/ErrorBoundary";
 import NotFound from "pages/NotFound";
 import Login from './pages/login';
 import HomeDashboard from './pages/home-dashboard';
+import HospitalDashboard from './pages/hospital-dashboard';
 import AdminDashboard from './pages/admin-dashboard';
 import RequestBlood from './pages/request-blood';
 import AmbulanceTracking from './pages/ambulance-tracking';
@@ -18,17 +19,22 @@ const AppRoutes = () => {
     <RouterRoutes>
       <Route path="/login" element={<Login />} />
       <Route path="/" element={
-        <ProtectedRoute>
+        <ProtectedRoute requiredRoles={['user']}>
           <HomeDashboard />
         </ProtectedRoute>
       } />
       <Route path="/home-dashboard" element={
-        <ProtectedRoute>
+        <ProtectedRoute requiredRoles={['user']}>
           <HomeDashboard />
         </ProtectedRoute>
       } />
+      <Route path="/hospital-dashboard" element={
+        <ProtectedRoute requiredRoles={['hospital']}>
+          <HospitalDashboard />
+        </ProtectedRoute>
+      } />
       <Route path="/admin-dashboard" element={
-        <ProtectedRoute>
+        <ProtectedRoute requiredRoles={['admin']}>
           <AdminDashboard />
         </ProtectedRoute>
       } />
