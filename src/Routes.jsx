@@ -18,11 +18,7 @@ const AppRoutes = () => {
   return (
     <RouterRoutes>
       <Route path="/login" element={<Login />} />
-      <Route path="/" element={
-        <ProtectedRoute requiredRoles={['user']}>
-          <HomeDashboard />
-        </ProtectedRoute>
-      } />
+      <Route path="/" element={<HomeDashboard />} />
       <Route path="/home-dashboard" element={
         <ProtectedRoute requiredRoles={['user']}>
           <HomeDashboard />

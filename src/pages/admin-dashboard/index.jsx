@@ -14,6 +14,7 @@ import OperationalMetricsPanel from './components/OperationalMetricsPanel';
 import SystemAlertsPanel from './components/SystemAlertsPanel';
 import ScalabilityMonitor from './components/ScalabilityMonitor';
 import ExportReportModal from './components/ExportReportModal';
+import AdminVerificationModal from './components/AdminVerificationModal';
 import { dbHelpers } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 

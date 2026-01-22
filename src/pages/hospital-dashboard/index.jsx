@@ -1,72 +1,103 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { Helmet } from 'react-helmet';
 import { useAuth } from '../../contexts/AuthContext';
+import InventoryManagement from './components/InventoryManagement';
+import RequestHandling from './components/RequestHandling';
+import DonationEntry from './components/DonationEntry';
+import HospitalProfile from './components/HospitalProfile';
 
 const HospitalDashboard = () => {
   const { userProfile } = useAuth();
+  const [activeTab, setActiveTab] = useState('inventory');
+
+  const tabs = [
+    { id: 'inventory', label: 'Inventory Management', icon: '📦' },
+    { id: 'requests', label: 'Request Handling', icon: '📋' },
+    { id: 'donations', label: 'Donation Entry', icon: '🩸' },
+    { id: 'profile', label: 'Hospital Profile', icon: '🏥' }
+  ];
+
+  const renderActiveTab = () => {
+    switch (activeTab) {
+      case 'inventory':
+        return <InventoryManagement />;
+      case 'requests':
+        return <RequestHandling />;
+      case 'donations':
+        return <DonationEntry />;
+      case 'profile':
+        return <HospitalProfile />;
+      default:
+        return <InventoryManagement />;
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">
-            Hospital Dashboard
-          </h1>
-          <p className="text-muted-foreground">
-            Welcome back, {userProfile?.full_name || userProfile?.email}!
-          </p>
-          <p className="text-sm text-muted-foreground mt-1">
-            Organization: {userProfile?.organization || 'Not specified'}
-          </p>
-        </div>
+    <>
+      <Helmet>
+        <title>Hospital Dashboard - SmartBloodApplication</title>
+        <meta name="description" content="Comprehensive hospital dashboard for blood inventory management, request handling, and donation recording" />
+      </Helmet>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* Quick Actions */}
-          <div className="bg-card rounded-lg p-6 shadow-sm border">
-            <h3 className="text-lg font-semibold mb-4">Quick Actions</h3>
-            <div className="space-y-3">
-              <button className="w-full bg-primary text-primary-foreground px-4 py-2 rounded-md hover:bg-primary/90 transition-colors">
-                View Blood Requests
-              </button>
-              <button className="w-full bg-secondary text-secondary-foreground px-4 py-2 rounded-md hover:bg-secondary/90 transition-colors">
-                Manage Inventory
-              </button>
-              <button className="w-full bg-secondary text-secondary-foreground px-4 py-2 rounded-md hover:bg-secondary/90 transition-colors">
-                Ambulance Tracking
-              </button>
-            </div>
-          </div>
-
-          {/* Recent Activity */}
-          <div className="bg-card rounded-lg p-6 shadow-sm border">
-            <h3 className="text-lg font-semibold mb-4">Recent Activity</h3>
-            <div className="space-y-3">
-              <div className="text-sm text-muted-foreground">
-                No recent activity
+      <div className="min-h-screen bg-background">
+        <div className="max-w-screen-2xl mx-auto">
+          {/* Header */}
+          <div className="bg-card border-b border-border px-6 py-4">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              <div>
+                <h1 className="text-2xl md:text-3xl font-bold text-foreground">
+                  Hospital Dashboard
+                </h1>
+                <p className="text-muted-foreground mt-1">
+                  Welcome back, {userProfile?.full_name || userProfile?.email}!
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  {userProfile?.organization || 'Hospital Management System'}
+                </p>
+              </div>
+              <div className="text-right">
+                <div className="text-sm text-muted-foreground">Current Session</div>
+                <div className="font-medium">{new Date().toLocaleDateString()}</div>
               </div>
             </div>
           </div>
 
-          {/* Statistics */}
-          <div className="bg-card rounded-lg p-6 shadow-sm border">
-            <h3 className="text-lg font-semibold mb-4">Statistics</h3>
-            <div className="space-y-3">
-              <div className="flex justify-between">
-                <span className="text-sm">Active Requests</span>
-                <span className="text-sm font-medium">0</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-sm">Available Units</span>
-                <span className="text-sm font-medium">0</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-sm">Active Ambulances</span>
-                <span className="text-sm font-medium">0</span>
-              </div>
+          {/* Navigation Tabs */}
+          <div className="bg-card border-b border-border px-6">
+            <div className="flex flex-wrap gap-1">
+              {tabs.map(tab => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                    activeTab === tab.id
+                      ? 'border-primary text-primary'
+                      : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
+                  }`}
+                >
+                  <span>{tab.icon}</span>
+                  <span className="hidden sm:inline">{tab.label}</span>
+                  <span className="sm:hidden">{tab.label.split(' ')[0]}</span>
+                </button>
+              ))}
             </div>
           </div>
+
+          {/* Main Content */}
+          <main className="p-6">
+            {renderActiveTab()}
+          </main>
+
+          {/* Footer */}
+          <footer className="bg-card border-t border-border px-6 py-4 mt-8">
+            <div className="text-center text-sm text-muted-foreground">
+              <p>&copy; {new Date().getFullYear()} SmartBloodApplication. Hospital Management System.</p>
+              <p className="mt-1">Ensuring safe and efficient blood supply management.</p>
+            </div>
+          </footer>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 
