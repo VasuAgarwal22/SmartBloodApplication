@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { useAuth } from '../../contexts/AuthContext';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
+import Select from '../../components/ui/Select';
 import AppImage from '../../components/AppImage';
 import Icon from '../../components/AppIcon';
 
@@ -14,7 +15,9 @@ const Login = () => {
   const { signIn, signUp, loading } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [fullName, setFullName] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [role, setRole] = useState('user');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -22,6 +25,7 @@ const Login = () => {
   const [emailValid, setEmailValid] = useState(null);
   const [passwordValid, setPasswordValid] = useState(null);
   const [confirmPasswordValid, setConfirmPasswordValid] = useState(null);
+  const [fullNameValid, setFullNameValid] = useState(null);
   const [shake, setShake] = useState(false);
 
   const from = location.state?.from?.pathname || '/';
@@ -42,6 +46,12 @@ const Login = () => {
     }
   }, [confirmPassword, password, isSignUp]);
 
+  useEffect(() => {
+    if (isSignUp) {
+      setFullNameValid(fullName ? (fullName.trim().length > 0 ? true : false) : null);
+    }
+  }, [fullName, isSignUp]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -59,7 +69,7 @@ const Login = () => {
           return;
         }
 
-        const { data, error } = await signUp(email, password);
+        const { data, error } = await signUp(email, password, fullName, role);
         if (error) {
           setError(error.message);
           setShake(true);
@@ -177,20 +187,52 @@ const Login = () => {
               </div>
 
               {isSignUp && (
-                <Input
-                  id="confirmPassword"
-                  type="password"
-                  label="Confirm Password"
-                  floating
-                  isValid={confirmPasswordValid}
-                  helperText="Passwords must match"
-                  showPasswordToggle
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="Confirm your password"
-                  required
-                  disabled={isSubmitting}
-                />
+                <>
+                  <Input
+                    id="confirmPassword"
+                    type="password"
+                    label="Confirm Password"
+                    floating
+                    isValid={confirmPasswordValid}
+                    helperText="Passwords must match"
+                    showPasswordToggle
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="Confirm your password"
+                    required
+                    disabled={isSubmitting}
+                  />
+
+                  <Input
+                    id="fullName"
+                    type="text"
+                    label="Full Name"
+                    floating
+                    isValid={fullNameValid}
+                    helperText="Enter your full name"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    placeholder="Enter your full name"
+                    required
+                    disabled={isSubmitting}
+                  />
+
+                  <Select
+                    id="role"
+                    label="Account Type"
+                    value={role}
+                    onChange={setRole}
+                    options={[
+                      { value: 'user', label: 'User (Donor/Recipient)' },
+                      { value: 'hospital', label: 'Hospital' },
+                      { value: 'admin', label: 'Administrator' }
+                    ]}
+                    placeholder="Select account type"
+                    required
+                    disabled={isSubmitting}
+                    description="Choose the type of account you want to create"
+                  />
+                </>
               )}
 
               {error && (
@@ -233,6 +275,12 @@ const Login = () => {
                   setEmail('');
                   setPassword('');
                   setConfirmPassword('');
+                  setFullName('');
+                  setRole('user');
+                  setEmailValid(null);
+                  setPasswordValid(null);
+                  setConfirmPasswordValid(null);
+                  setFullNameValid(null);
                 }}
                 className="text-sm text-primary hover:text-primary/80 underline"
                 disabled={isSubmitting}

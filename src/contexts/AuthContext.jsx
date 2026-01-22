@@ -52,6 +52,19 @@ export const AuthProvider = ({ children }) => {
         localStorage.setItem('authToken', response.token);
         localStorage.setItem('userData', JSON.stringify(response.user));
         setUser(response.user);
+
+        // Fetch user profile with role
+        try {
+          const profileResponse = await apiClient.getProfile();
+          if (profileResponse.profile) {
+            setUserProfile(profileResponse.profile);
+            localStorage.setItem('userProfile', JSON.stringify(profileResponse.profile));
+          }
+        } catch (profileError) {
+          console.error('Error fetching user profile:', profileError);
+          // Continue with login even if profile fetch fails
+        }
+
         return { data: response, error: null };
       } else {
         return { data: null, error: { message: response.message || 'Login failed' } };
@@ -61,9 +74,9 @@ export const AuthProvider = ({ children }) => {
     }
   }
 
-  const signUp = async (email, password) => {
+  const signUp = async (email, password, full_name, role = 'user') => {
     try {
-      const response = await apiClient.register(email, password);
+      const response = await apiClient.register(email, password, full_name, role);
       return { data: response, error: null };
     } catch (error) {
       return { data: null, error: { message: error.message || 'Network error. Please try again.' } };
