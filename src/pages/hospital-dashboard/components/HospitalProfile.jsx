@@ -7,7 +7,7 @@ import { useAuth } from '../../../contexts/AuthContext';
 
 const HospitalProfile = () => {
   const { userProfile } = useAuth();
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditing, setIsEditing] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [notifications, setNotifications] = useState([]);
 

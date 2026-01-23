@@ -28,6 +28,16 @@ const Login = () => {
   const [fullNameValid, setFullNameValid] = useState(null);
   const [shake, setShake] = useState(false);
 
+  // Aadhaar and OTP states
+  const [aadhaar, setAadhaar] = useState('');
+  const [aadhaarValid, setAadhaarValid] = useState(null);
+  const [otp, setOtp] = useState('');
+  const [otpId, setOtpId] = useState(null);
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpVerified, setOtpVerified] = useState(false);
+  const [otpLoading, setOtpLoading] = useState(false);
+  const [otpError, setOtpError] = useState('');
+
   const from = location.state?.from?.pathname || '/';
 
   // Real-time validation
@@ -52,6 +62,68 @@ const Login = () => {
     }
   }, [fullName, isSignUp]);
 
+  // Aadhaar input handler with formatting
+  const handleAadhaarChange = (e) => {
+    const value = e.target.value;
+    const formatted = formatAadhaar(value);
+    setAadhaar(formatted);
+    setOtpSent(false);
+    setOtpVerified(false);
+    setOtpId(null);
+    setOtp('');
+    setOtpError('');
+  };
+
+  // Send OTP handler
+  const handleSendOTP = async () => {
+    if (!aadhaarValid) return;
+
+    setOtpLoading(true);
+    setOtpError('');
+
+    try {
+      // Mock mobile number for demo - in production, get from Aadhaar API
+      const mockMobile = '+91' + Math.floor(1000000000 + Math.random() * 9000000000);
+
+      const result = await otpService.sendOTP(aadhaar.replace(/\D/g, ''), mockMobile);
+
+      if (result.success) {
+        setOtpId(result.otpId);
+        setOtpSent(true);
+        setOtpError('');
+      } else {
+        setOtpError(result.message);
+      }
+    } catch (error) {
+      setOtpError('Failed to send OTP. Please try again.');
+    } finally {
+      setOtpLoading(false);
+    }
+  };
+
+  // Verify OTP handler
+  const handleVerifyOTP = async () => {
+    if (!otpId || !otp.trim()) return;
+
+    setOtpLoading(true);
+    setOtpError('');
+
+    try {
+      const result = await otpService.verifyOTP(otpId, otp.trim());
+
+      if (result.success) {
+        setOtpVerified(true);
+        setOtpError('');
+      } else {
+        setOtpError(result.message);
+      }
+    } catch (error) {
+      setOtpError('Failed to verify OTP. Please try again.');
+    } finally {
+      setOtpLoading(false);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -63,6 +135,15 @@ const Login = () => {
       if (isSignUp) {
         if (password !== confirmPassword) {
           setError('Passwords do not match');
+          setShake(true);
+          setTimeout(() => setShake(false), 500);
+          setIsSubmitting(false);
+          return;
+        }
+
+        // Check Aadhaar verification for hospital and admin roles
+        if ((role === 'hospital' || role === 'admin') && !otpVerified) {
+          setError('Please verify your Aadhaar number before creating an account');
           setShake(true);
           setTimeout(() => setShake(false), 500);
           setIsSubmitting(false);
@@ -102,6 +183,14 @@ const Login = () => {
             setPasswordValid(null);
             setConfirmPasswordValid(null);
             setFullNameValid(null);
+            // Clear Aadhaar states
+            setAadhaar('');
+            setAadhaarValid(null);
+            setOtp('');
+            setOtpId(null);
+            setOtpSent(false);
+            setOtpVerified(false);
+            setOtpError('');
           }
         }
       } else {
@@ -247,7 +336,17 @@ const Login = () => {
                     id="role"
                     label="Account Type"
                     value={role}
-                    onChange={setRole}
+                    onChange={(value) => {
+                      setRole(value);
+                      // Reset Aadhaar and OTP when role changes
+                      setAadhaar('');
+                      setAadhaarValid(null);
+                      setOtp('');
+                      setOtpId(null);
+                      setOtpSent(false);
+                      setOtpVerified(false);
+                      setOtpError('');
+                    }}
                     options={[
                       { value: 'user', label: 'User (Donor/Recipient)' },
                       { value: 'hospital', label: 'Hospital' },
@@ -258,6 +357,90 @@ const Login = () => {
                     disabled={isSubmitting}
                     description="Choose the type of account you want to create"
                   />
+
+                  {/* Aadhaar Card Number - Only for Hospital and Admin */}
+                  {(role === 'hospital' || role === 'admin') && (
+                    <div className="space-y-4">
+                      <Input
+                        id="aadhaar"
+                        type="text"
+                        label="Aadhaar Card Number"
+                        placeholder="XXXX-XXXX-XXXX"
+                        value={aadhaar}
+                        onChange={handleAadhaarChange}
+                        isValid={aadhaarValid}
+                        helperText="Enter 12-digit Aadhaar number"
+                        required
+                        disabled={isSubmitting}
+                        maxLength={14} // Allow for dashes
+                      />
+
+                      {aadhaarValid && !otpSent && (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={handleSendOTP}
+                          disabled={otpLoading}
+                          className="w-full"
+                        >
+                          {otpLoading ? 'Sending OTP...' : 'Send OTP'}
+                        </Button>
+                      )}
+
+                      {otpSent && !otpVerified && (
+                        <div className="space-y-3">
+                          <Input
+                            id="otp"
+                            type="text"
+                            label="Enter OTP"
+                            placeholder="6-digit OTP"
+                            value={otp}
+                            onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                            required
+                            disabled={isSubmitting || otpLoading}
+                            maxLength={6}
+                          />
+
+                          <div className="flex gap-2">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              onClick={handleVerifyOTP}
+                              disabled={otpLoading || otp.length !== 6}
+                              className="flex-1"
+                            >
+                              {otpLoading ? 'Verifying...' : 'Verify OTP'}
+                            </Button>
+
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              onClick={handleSendOTP}
+                              disabled={otpLoading}
+                              className="text-sm"
+                            >
+                              Resend
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+
+                      {otpVerified && (
+                        <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                          <div className="flex items-center gap-2">
+                            <Icon name="CheckCircle" size={16} className="text-green-600" />
+                            <p className="text-sm text-green-800">Aadhaar verified successfully</p>
+                          </div>
+                        </div>
+                      )}
+
+                      {otpError && (
+                        <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                          <p className="text-sm text-red-800">{otpError}</p>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </>
               )}
 
@@ -278,7 +461,7 @@ const Login = () => {
                 variant="default"
                 size="lg"
                 className="w-full transition-transform duration-150 hover:scale-105 active:scale-95"
-                disabled={isSubmitting}
+                disabled={isSubmitting || ((role === 'hospital' || role === 'admin') && !otpVerified)}
                 iconName={isSubmitting ? "Loader2" : undefined}
                 iconPosition="left"
               >
@@ -305,6 +488,14 @@ const Login = () => {
                   setPasswordValid(null);
                   setConfirmPasswordValid(null);
                   setFullNameValid(null);
+                  // Reset Aadhaar states
+                  setAadhaar('');
+                  setAadhaarValid(null);
+                  setOtp('');
+                  setOtpId(null);
+                  setOtpSent(false);
+                  setOtpVerified(false);
+                  setOtpError('');
                 }}
                 className="text-sm text-primary hover:text-primary/80 underline"
                 disabled={isSubmitting}
