@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Helmet } from 'react-helmet';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import InventoryManagement from './components/InventoryManagement';
 import RequestHandling from './components/RequestHandling';
@@ -7,8 +8,18 @@ import DonationEntry from './components/DonationEntry';
 import HospitalProfile from './components/HospitalProfile';
 
 const HospitalDashboard = () => {
-  const { userProfile } = useAuth();
+  const { userProfile, signOut } = useAuth();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('inventory');
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      navigate('/');
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
+  };
 
   const tabs = [
     { id: 'inventory', label: 'Inventory Management', icon: '📦' },
@@ -55,9 +66,17 @@ const HospitalDashboard = () => {
                   {userProfile?.organization || 'Hospital Management System'}
                 </p>
               </div>
-              <div className="text-right">
-                <div className="text-sm text-muted-foreground">Current Session</div>
-                <div className="font-medium">{new Date().toLocaleDateString()}</div>
+              <div className="text-right flex items-center gap-4">
+                <div>
+                  <div className="text-sm text-muted-foreground">Current Session</div>
+                  <div className="font-medium">{new Date().toLocaleDateString()}</div>
+                </div>
+                <button
+                  onClick={handleSignOut}
+                  className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors text-sm font-medium"
+                >
+                  Sign Out
+                </button>
               </div>
             </div>
           </div>

@@ -10,7 +10,7 @@ const InventoryManagement = () => {
   const { userProfile } = useAuth();
   const [inventory, setInventory] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [showAddForm, setShowAddForm] = useState(false);
+  const [showAddForm, setShowAddForm] = useState(true);
   const [editingItem, setEditingItem] = useState(null);
   const [notifications, setNotifications] = useState([]);
 

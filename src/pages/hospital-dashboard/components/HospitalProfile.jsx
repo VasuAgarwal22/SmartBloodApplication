@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+ import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import Button from '../../../components/ui/Button';
 import Input from '../../../components/ui/Input';
@@ -7,7 +7,6 @@ import { useAuth } from '../../../contexts/AuthContext';
 
 const HospitalProfile = () => {
   const { userProfile } = useAuth();
-  const [isEditing, setIsEditing] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [notifications, setNotifications] = useState([]);
 
@@ -24,13 +23,13 @@ const HospitalProfile = () => {
     email: '',
     website: '',
     operating_hours: {
-      monday: { open: '09:00', close: '17:00', closed: false },
-      tuesday: { open: '09:00', close: '17:00', closed: false },
-      wednesday: { open: '09:00', close: '17:00', closed: false },
-      thursday: { open: '09:00', close: '17:00', closed: false },
-      friday: { open: '09:00', close: '17:00', closed: false },
-      saturday: { open: '09:00', close: '13:00', closed: false },
-      sunday: { open: '00:00', close: '00:00', closed: true }
+      monday: { open: '', close: '', closed: false },
+      tuesday: { open: '', close: '', closed: false },
+      wednesday: { open: '', close: '', closed: false },
+      thursday: { open: '', close: '', closed: false },
+      friday: { open: '', close: '', closed: false },
+      saturday: { open: '', close: '', closed: false },
+      sunday: { open: '', close: '', closed: true }
     },
     services: [],
     emergency_services: false,
@@ -46,9 +45,8 @@ const HospitalProfile = () => {
 
   const [errors, setErrors] = useState({});
 
-  useEffect(() => {
-    loadHospitalProfile();
-  }, []);
+  // Removed automatic loading of profile data on mount
+  // Data will only be loaded when user explicitly chooses to edit/load profile
 
   const loadHospitalProfile = async () => {
     try {
@@ -126,7 +124,6 @@ const HospitalProfile = () => {
       if (error) throw error;
 
       addNotification('Hospital profile updated successfully', 'success');
-      setIsEditing(false);
     } catch (error) {
       console.error('Error updating hospital profile:', error);
       addNotification('Error updating hospital profile', 'error');
@@ -159,12 +156,6 @@ const HospitalProfile = () => {
               Manage your hospital information, license details, and operating hours
             </p>
           </div>
-          <Button
-            onClick={() => setIsEditing(!isEditing)}
-            variant={isEditing ? "outline" : "default"}
-          >
-            {isEditing ? 'Cancel Editing' : 'Edit Profile'}
-          </Button>
         </div>
 
         {/* Notifications */}
@@ -192,7 +183,6 @@ const HospitalProfile = () => {
                 value={profileData.hospital_name}
                 onChange={(e) => handleInputChange('hospital_name', e.target.value)}
                 error={errors.hospital_name}
-                disabled={!isEditing}
                 required
               />
 
@@ -202,7 +192,6 @@ const HospitalProfile = () => {
                 value={profileData.registration_number}
                 onChange={(e) => handleInputChange('registration_number', e.target.value)}
                 error={errors.registration_number}
-                disabled={!isEditing}
                 required
               />
 
@@ -212,7 +201,6 @@ const HospitalProfile = () => {
                 value={profileData.license_number}
                 onChange={(e) => handleInputChange('license_number', e.target.value)}
                 error={errors.license_number}
-                disabled={!isEditing}
                 required
               />
 
@@ -221,7 +209,6 @@ const HospitalProfile = () => {
                 placeholder="Blood bank license number"
                 value={profileData.blood_bank_license}
                 onChange={(e) => handleInputChange('blood_bank_license', e.target.value)}
-                disabled={!isEditing}
               />
             </div>
           </div>
@@ -236,7 +223,6 @@ const HospitalProfile = () => {
                 value={profileData.address}
                 onChange={(e) => handleInputChange('address', e.target.value)}
                 error={errors.address}
-                disabled={!isEditing}
                 required
               />
 
@@ -247,7 +233,6 @@ const HospitalProfile = () => {
                   value={profileData.city}
                   onChange={(e) => handleInputChange('city', e.target.value)}
                   error={errors.city}
-                  disabled={!isEditing}
                   required
                 />
 
@@ -256,7 +241,6 @@ const HospitalProfile = () => {
                   placeholder="State"
                   value={profileData.state}
                   onChange={(e) => handleInputChange('state', e.target.value)}
-                  disabled={!isEditing}
                 />
 
                 <Input
@@ -264,7 +248,6 @@ const HospitalProfile = () => {
                   placeholder="Pincode"
                   value={profileData.pincode}
                   onChange={(e) => handleInputChange('pincode', e.target.value)}
-                  disabled={!isEditing}
                 />
               </div>
             </div>
@@ -280,7 +263,6 @@ const HospitalProfile = () => {
                 value={profileData.phone}
                 onChange={(e) => handleInputChange('phone', e.target.value)}
                 error={errors.phone}
-                disabled={!isEditing}
                 required
               />
 
@@ -289,7 +271,6 @@ const HospitalProfile = () => {
                 placeholder="Emergency contact number"
                 value={profileData.emergency_phone}
                 onChange={(e) => handleInputChange('emergency_phone', e.target.value)}
-                disabled={!isEditing}
               />
 
               <Input
@@ -299,7 +280,6 @@ const HospitalProfile = () => {
                 value={profileData.email}
                 onChange={(e) => handleInputChange('email', e.target.value)}
                 error={errors.email}
-                disabled={!isEditing}
                 required
               />
 
@@ -308,7 +288,6 @@ const HospitalProfile = () => {
                 placeholder="https://www.hospital.com"
                 value={profileData.website}
                 onChange={(e) => handleInputChange('website', e.target.value)}
-                disabled={!isEditing}
               />
             </div>
           </div>
@@ -325,7 +304,6 @@ const HospitalProfile = () => {
                       type="checkbox"
                       checked={!profileData.operating_hours[day.key]?.closed}
                       onChange={(e) => handleOperatingHoursChange(day.key, 'closed', !e.target.checked)}
-                      disabled={!isEditing}
                       className="rounded"
                     />
                     <span className="text-sm">Open</span>
@@ -334,17 +312,15 @@ const HospitalProfile = () => {
                     <>
                       <Input
                         type="time"
-                        value={profileData.operating_hours[day.key]?.open || '09:00'}
+                        value={profileData.operating_hours[day.key]?.open || ''}
                         onChange={(e) => handleOperatingHoursChange(day.key, 'open', e.target.value)}
-                        disabled={!isEditing}
                         className="w-32"
                       />
                       <span className="text-sm">to</span>
                       <Input
                         type="time"
-                        value={profileData.operating_hours[day.key]?.close || '17:00'}
+                        value={profileData.operating_hours[day.key]?.close || ''}
                         onChange={(e) => handleOperatingHoursChange(day.key, 'close', e.target.value)}
-                        disabled={!isEditing}
                         className="w-32"
                       />
                     </>
@@ -366,7 +342,6 @@ const HospitalProfile = () => {
                 placeholder="2020"
                 value={profileData.established_year}
                 onChange={(e) => handleInputChange('established_year', e.target.value)}
-                disabled={!isEditing}
               />
 
               <Input
@@ -375,7 +350,6 @@ const HospitalProfile = () => {
                 placeholder="500"
                 value={profileData.total_beds}
                 onChange={(e) => handleInputChange('total_beds', e.target.value)}
-                disabled={!isEditing}
               />
 
               <Input
@@ -384,7 +358,6 @@ const HospitalProfile = () => {
                 placeholder="50"
                 value={profileData.icu_beds}
                 onChange={(e) => handleInputChange('icu_beds', e.target.value)}
-                disabled={!isEditing}
               />
 
               <Input
@@ -392,7 +365,6 @@ const HospitalProfile = () => {
                 placeholder="JCI, NABH, etc."
                 value={profileData.accreditation}
                 onChange={(e) => handleInputChange('accreditation', e.target.value)}
-                disabled={!isEditing}
               />
             </div>
           </div>
@@ -406,7 +378,6 @@ const HospitalProfile = () => {
                 placeholder="Dr. John Smith"
                 value={profileData.contact_person}
                 onChange={(e) => handleInputChange('contact_person', e.target.value)}
-                disabled={!isEditing}
               />
 
               <Input
@@ -414,7 +385,6 @@ const HospitalProfile = () => {
                 placeholder="Medical Director"
                 value={profileData.contact_person_designation}
                 onChange={(e) => handleInputChange('contact_person_designation', e.target.value)}
-                disabled={!isEditing}
               />
 
               <Input
@@ -422,30 +392,20 @@ const HospitalProfile = () => {
                 placeholder="+1 (555) 123-4567"
                 value={profileData.contact_person_phone}
                 onChange={(e) => handleInputChange('contact_person_phone', e.target.value)}
-                disabled={!isEditing}
               />
             </div>
           </div>
 
           {/* Submit Button */}
-          {isEditing && (
-            <div className="flex justify-end gap-3">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setIsEditing(false)}
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                variant="default"
-                disabled={isLoading}
-              >
-                {isLoading ? 'Saving...' : 'Save Changes'}
-              </Button>
-            </div>
-          )}
+          <div className="flex justify-end gap-3">
+            <Button
+              type="submit"
+              variant="default"
+              disabled={isLoading}
+            >
+              {isLoading ? 'Saving...' : 'Save Changes'}
+            </Button>
+          </div>
         </form>
       </div>
     </>

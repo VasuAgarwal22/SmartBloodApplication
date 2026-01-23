@@ -142,6 +142,7 @@ const Input = React.forwardRef(({
                     onFocus={handleFocus}
                     onBlur={handleBlur}
                     onKeyDown={handleKeyDown}
+                    value={props.value ?? ''}
                     {...props}
                 />
 
