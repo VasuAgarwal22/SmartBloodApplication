@@ -12,7 +12,7 @@ import Icon from '../../components/AppIcon';
 const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { signIn, signUp, loading } = useAuth();
+  const { signIn, signUp, loading, userProfile } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
@@ -75,19 +75,34 @@ const Login = () => {
           setShake(true);
           setTimeout(() => setShake(false), 500);
         } else {
-          // Account created successfully, but email verification is required
-          setSuccess('Please check your email and verify your account before signing in.');
-          setIsSignUp(false);
-          // Clear form fields
-          setEmail('');
-          setPassword('');
-          setConfirmPassword('');
-          setFullName('');
-          setRole('user');
-          setEmailValid(null);
-          setPasswordValid(null);
-          setConfirmPasswordValid(null);
-          setFullNameValid(null);
+          // Account created successfully - for mock auth, auto-login
+          if (data?.user?.id?.startsWith('mock')) {
+            setSuccess(`Account created successfully! Welcome, ${fullName}!`);
+            setTimeout(() => {
+              // Redirect based on role
+              const roleRedirects = {
+                user: '/home-dashboard',
+                hospital: '/hospital-dashboard',
+                admin: '/admin-dashboard'
+              };
+              const redirectTo = roleRedirects[role] || '/home-dashboard';
+              navigate(redirectTo, { replace: true });
+            }, 1500);
+          } else {
+            // Real Supabase signup - email verification required
+            setSuccess('Please check your email and verify your account before signing in.');
+            setIsSignUp(false);
+            // Clear form fields
+            setEmail('');
+            setPassword('');
+            setConfirmPassword('');
+            setFullName('');
+            setRole('user');
+            setEmailValid(null);
+            setPasswordValid(null);
+            setConfirmPasswordValid(null);
+            setFullNameValid(null);
+          }
         }
       } else {
         const { error } = await signIn(email, password);
@@ -96,8 +111,17 @@ const Login = () => {
           setShake(true);
           setTimeout(() => setShake(false), 500);
         } else {
-          // Success feedback before redirect
-          setTimeout(() => navigate(from, { replace: true }), 1000);
+          // Success feedback before redirect based on role
+          setTimeout(() => {
+            // Redirect based on user role
+            const roleRedirects = {
+              user: '/home-dashboard',
+              hospital: '/hospital-dashboard',
+              admin: '/admin-dashboard'
+            };
+            const redirectTo = roleRedirects[userProfile?.role] || '/home-dashboard';
+            navigate(redirectTo, { replace: true });
+          }, 1000);
         }
       }
     } catch (err) {

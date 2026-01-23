@@ -8,32 +8,32 @@ const AppImpactStatistics = ({ stats }) => {
 
   const impactMetrics = [
     {
-      title: 'Total Donors Registered',
-      value: formatNumber(stats.totalDonors),
-      icon: 'Users',
-      description: 'Active blood donors in our network',
-      color: 'text-blue-600'
-    },
-    {
-      title: 'Requests Fulfilled',
-      value: formatNumber(stats.requestsFulfilled),
-      icon: 'CheckCircle',
-      description: 'Emergency blood requests successfully allocated',
-      color: 'text-green-600'
-    },
-    {
-      title: 'Hospitals Onboarded',
-      value: formatNumber(stats.hospitalsOnboarded),
-      icon: 'Building2',
-      description: 'Medical facilities connected to our platform',
-      color: 'text-purple-600'
-    },
-    {
-      title: 'Lives Helped',
-      value: formatNumber(stats.livesHelped),
+      title: 'Lives Saved',
+      value: formatNumber(stats.livesSaved),
       icon: 'Heart',
       description: 'People who received timely blood transfusions',
       color: 'text-red-600'
+    },
+    {
+      title: 'Blood Units Distributed',
+      value: formatNumber(stats.bloodUnitsDistributed),
+      icon: 'Droplet',
+      description: 'Units of blood successfully allocated',
+      color: 'text-blue-600'
+    },
+    {
+      title: 'Active Donors',
+      value: formatNumber(stats.activeDonors),
+      icon: 'Users',
+      description: 'Active blood donors in our network',
+      color: 'text-green-600'
+    },
+    {
+      title: 'Hospitals Served',
+      value: formatNumber(stats.hospitalsServed),
+      icon: 'Building',
+      description: 'Medical facilities connected to our platform',
+      color: 'text-purple-600'
     }
   ];
 
@@ -70,32 +70,7 @@ const AppImpactStatistics = ({ stats }) => {
           ))}
         </div>
 
-        {/* City-wise Statistics */}
-        <div className="bg-card rounded-xl border border-border p-6 md:p-8">
-          <h3 className="text-lg md:text-xl font-semibold mb-6 text-center">
-            City-wise Impact Statistics
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-            {stats.cityStats.map((city, index) => (
-              <div
-                key={index}
-                className="bg-background rounded-lg border border-border p-4 md:p-6"
-              >
-                <div className="text-lg md:text-xl font-bold mb-2">{city.city}</div>
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Donors</span>
-                    <span className="font-semibold">{formatNumber(city.donors)}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Requests</span>
-                    <span className="font-semibold">{formatNumber(city.requests)}</span>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+
 
         {/* Call to Action */}
         <div className="mt-8 md:mt-12 text-center">

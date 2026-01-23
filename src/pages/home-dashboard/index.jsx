@@ -10,10 +10,13 @@ import QuickActionCard from './components/QuickActionCard';
 import RecentActivityCard from './components/RecentActivityCard';
 import TrustBadges from './components/TrustBadges';
 import AppImpactStatistics from './components/AppImpactStatistics';
+import Icon from '../../components/AppIcon';
 
 const HomeDashboard = () => {
   const { user, signOut } = useAuth();
   const [impactStats, setImpactStats] = useState(null);
+  const [showDonorRegistration, setShowDonorRegistration] = useState(false);
+  const [verificationStatus, setVerificationStatus] = useState('pending'); // 'pending', 'verified', 'rejected'
 
   useEffect(() => {
     // Mock impact stats - replace with actual API call
@@ -109,10 +112,24 @@ const HomeDashboard = () => {
               />
             </div>
 
-            {/* Donor Registration */}
-            <div className="mb-8">
-              <DonorRegistrationForm />
+            {/* Donor Registration Button */}
+            <div className="mb-8 text-center">
+              <button
+                onClick={() => setShowDonorRegistration(true)}
+                className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium"
+              >
+                <Icon name="UserPlus" size={20} />
+                Register as Donor
+              </button>
             </div>
+
+            {/* Donor Registration Modal */}
+            {showDonorRegistration && (
+              <DonorRegistrationForm
+                onClose={() => setShowDonorRegistration(false)}
+                onSuccess={() => setShowDonorRegistration(false)}
+              />
+            )}
 
             {/* Inventory Status */}
             <div className="mb-8">

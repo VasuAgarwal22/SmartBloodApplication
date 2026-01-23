@@ -1,24 +1,24 @@
 import React from "react";
-import { BrowserRouter, Routes as RouterRoutes, Route } from "react-router-dom";
+import { BrowserRouter, Routes as RouterRoutes, Route, Navigate } from "react-router-dom";
 import ScrollToTop from "components/ScrollToTop";
 import ErrorBoundary from "components/ErrorBoundary";
 import NotFound from "pages/NotFound";
-import Login from './pages/login';
-import HomeDashboard from './pages/home-dashboard';
-import HospitalDashboard from './pages/hospital-dashboard';
-import AdminDashboard from './pages/admin-dashboard';
-import RequestBlood from './pages/request-blood';
-import AmbulanceTracking from './pages/ambulance-tracking';
-import EmergencyPriorityQueue from './pages/emergency-priority-queue';
-import NearestDonorFinder from './pages/nearest-donor-finder';
-import { AuthProvider } from './contexts/AuthContext';
-import ProtectedRoute from './components/ProtectedRoute';
+import Login from 'pages/login';
+import HomeDashboard from 'pages/home-dashboard';
+import HospitalDashboard from 'pages/hospital-dashboard';
+import AdminDashboard from 'pages/admin-dashboard';
+import RequestBlood from 'pages/request-blood';
+import AmbulanceTracking from 'pages/ambulance-tracking';
+import EmergencyPriorityQueue from 'pages/emergency-priority-queue';
+import NearestDonorFinder from 'pages/nearest-donor-finder';
+import { AuthProvider } from 'contexts/AuthContext';
+import ProtectedRoute from 'components/ProtectedRoute';
 
 const AppRoutes = () => {
   return (
     <RouterRoutes>
       <Route path="/login" element={<Login />} />
-      <Route path="/" element={<HomeDashboard />} />
+      <Route path="/" element={<Navigate to="/login" replace />} />
       <Route path="/home-dashboard" element={
         <ProtectedRoute requiredRoles={['user']}>
           <HomeDashboard />

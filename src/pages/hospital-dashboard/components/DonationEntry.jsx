@@ -3,7 +3,7 @@ import { Helmet } from 'react-helmet';
 import Button from '../../../components/ui/Button';
 import Input from '../../../components/ui/Input';
 import Select from '../../../components/ui/Select';
-import Checkbox from '../../../components/ui/Checkbox';
+import { Checkbox } from '../../../components/ui/Checkbox';
 import { dbHelpers } from '../../../lib/supabase';
 import { useAuth } from '../../../contexts/AuthContext';
 

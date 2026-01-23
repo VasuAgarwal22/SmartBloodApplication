@@ -14,6 +14,7 @@ import LocationSection from './components/LocationSection';
 import AvailabilityPreview from './components/AvailabilityPreview';
 import ValidationWarning from './components/ValidationWarning';
 import EmergencyOverride from './components/EmergencyOverride';
+import { dbHelpers } from '../../lib/supabase';
 
 const RequestBlood = () => {
   const navigate = useNavigate();
@@ -192,45 +193,31 @@ const RequestBlood = () => {
 
     try {
       const requestData = {
-        patientName: formData.patientName,
-        bloodGroup: formData.bloodGroup,
-        quantity: formData.quantity,
-        patientContact: formData.patientContact,
-        urgencyLevel: formData.urgencyLevel,
-        requesterType: formData.requesterType,
-        requesterName: formData.requesterName,
-        verificationId: formData.verificationId,
-        requesterContact: formData.requesterContact,
-        requesterEmail: formData.requesterEmail,
-        facilityName: formData.facilityName,
+        patient_name: formData.patientName,
+        blood_group: formData.bloodGroup,
+        quantity: parseInt(formData.quantity),
+        patient_contact: formData.patientContact,
+        urgency_level: formData.urgencyLevel,
+        requester_type: formData.requesterType,
+        requester_name: formData.requesterName,
+        verification_id: formData.verificationId,
+        requester_contact: formData.requesterContact,
+        requester_email: formData.requesterEmail,
+        facility_name: formData.facilityName,
         address: formData.address,
         city: formData.city,
         state: formData.state,
-        zipCode: formData.zipCode
+        zip_code: formData.zipCode,
+        status: 'pending',
+        created_at: new Date().toISOString(),
+        priority_score: calculatePriorityScore()
       };
 
-      const response = await fetch('http://localhost:5000/api/blood-requests', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify(requestData)
-      });
+      const { data: result, error } = await dbHelpers.createBloodRequest(requestData);
 
-      if (!response.ok) {
-        let errorMessage = 'Failed to submit request';
-        try {
-          const errorData = await response.json();
-          errorMessage = errorData.message || errorMessage;
-        } catch (parseError) {
-          // If response is not JSON, use status text
-          errorMessage = response.statusText || errorMessage;
-        }
-        throw new Error(`${response.status}: ${errorMessage}`);
+      if (error) {
+        throw new Error(error.message || 'Failed to submit blood request');
       }
-
-      const result = await response.json();
 
       clearInterval(progressInterval);
       setLoadingProgress(100);
@@ -242,7 +229,7 @@ const RequestBlood = () => {
         addNotification({
           type: 'success',
           title: 'Request Submitted Successfully',
-          message: `Request ID: ${result.requestId}. Priority Score: ${result.priorityScore}. Estimated processing: 15-20 minutes`,
+          message: `Request ID: ${result.id}. Priority Score: ${result.priority_score}. Estimated processing: 15-20 minutes`,
           action: {
             label: 'View Emergency Queue',
             onClick: () => navigate('/emergency-priority-queue')

@@ -3,7 +3,7 @@ import { Helmet } from 'react-helmet';
 import Button from '../../../components/ui/Button';
 import Input from '../../../components/ui/Input';
 import Select from '../../../components/ui/Select';
-import Checkbox from '../../../components/ui/Checkbox';
+import { Checkbox } from '../../../components/ui/Checkbox';
 import { dbHelpers } from '../../../lib/supabase';
 import { useAuth } from '../../../contexts/AuthContext';
 
@@ -31,6 +31,14 @@ const DonorRegistrationForm = ({ onClose, onSuccess }) => {
     noRecentBloodTransfusion: false,
     noHighRiskBehavior: false,
     noMedication: false
+  });
+
+  const [governmentId, setGovernmentId] = useState({
+    idType: '',
+    idNumber: '',
+    idDocument: null,
+    selfie: null,
+    verified: false
   });
 
   const [errors, setErrors] = useState({});
@@ -152,12 +160,13 @@ const DonorRegistrationForm = ({ onClose, onSuccess }) => {
         <title>Donor Registration - SmartBloodApplication</title>
       </Helmet>
 
-      <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-        <div className="bg-background rounded-xl border border-border shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="fixed top-16 left-0 right-0 bottom-0 bg-background/80 backdrop-blur-sm flex items-center justify-center p-4 z-[1200]">
+        <div className="bg-card border border-border rounded-xl shadow-elevation-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
           <div className="p-6 md:p-8">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold">Register as Blood Donor</h2>
               <button
+                type="button"
                 onClick={onClose}
                 className="text-muted-foreground hover:text-foreground transition-colors"
               >
@@ -240,6 +249,84 @@ const DonorRegistrationForm = ({ onClose, onSuccess }) => {
                     error={errors.emergencyContactPhone}
                     required
                   />
+                </div>
+              </div>
+
+              {/* Government ID Verification */}
+              <div>
+                <h3 className="text-lg font-semibold mb-4">Government ID Verification (KYC)</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  For security and compliance, we require government-issued ID verification. This is mandatory for all donors.
+                </p>
+
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <Select
+                      label="ID Type"
+                      placeholder="Select ID type"
+                      options={[
+                        { value: 'passport', label: 'Passport' },
+                        { value: 'drivers_license', label: 'Driver\'s License' },
+                        { value: 'national_id', label: 'National ID Card' },
+                        { value: 'other', label: 'Other Government ID' }
+                      ]}
+                      value={governmentId.idType}
+                      onChange={(value) => setGovernmentId(prev => ({ ...prev, idType: value }))}
+                      required
+                    />
+
+                    <Input
+                      label="ID Number"
+                      placeholder="Enter your ID number"
+                      value={governmentId.idNumber}
+                      onChange={(e) => setGovernmentId(prev => ({ ...prev, idNumber: e.target.value }))}
+                      required
+                    />
+                  </div>
+
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Upload ID Document</label>
+                      <input
+                        type="file"
+                        accept="image/*,.pdf"
+                        onChange={(e) => setGovernmentId(prev => ({ ...prev, idDocument: e.target.files[0] }))}
+                        className="w-full p-3 border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring"
+                        required
+                      />
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Upload a clear photo or scan of your government-issued ID
+                      </p>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Upload Selfie</label>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => setGovernmentId(prev => ({ ...prev, selfie: e.target.files[0] }))}
+                        className="w-full p-3 border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring"
+                        required
+                      />
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Take a selfie holding your ID for verification
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <div className="flex items-start gap-3">
+                      <div className="w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <span className="text-white text-xs">i</span>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-blue-900 mb-1">Verification Process</p>
+                        <p className="text-xs text-blue-700">
+                          Your documents will be reviewed within 24-48 hours. You'll receive an email notification once verification is complete. You cannot access donor features until verification is approved.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
 

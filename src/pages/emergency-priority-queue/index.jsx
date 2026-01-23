@@ -11,6 +11,7 @@ import QueueStatistics from './components/QueueStatistics';
 import EmergencyOverridePanel from './components/EmergencyOverridePanel';
 import RequestDetailsModal from './components/RequestDetailsModal';
 import FilterControls from './components/FilterControls';
+import { dbHelpers } from '../../lib/supabase';
 
 const EmergencyPriorityQueue = () => {
   const [requests, setRequests] = useState([]);
@@ -18,12 +19,11 @@ const EmergencyPriorityQueue = () => {
 
   const fetchRequests = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/blood-requests');
-      if (!response.ok) {
-        throw new Error('Failed to fetch requests');
+      const { data, error } = await dbHelpers.getBloodRequests();
+      if (error) {
+        throw error;
       }
-      const data = await response.json();
-      setRequests(data.requests || []);
+      setRequests(data || []);
     } catch (error) {
       console.error('Error fetching requests:', error);
       setNotifications(prev => [...prev, {

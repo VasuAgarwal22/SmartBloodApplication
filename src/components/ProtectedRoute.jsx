@@ -22,17 +22,22 @@ const ProtectedRoute = ({ children, requiredRoles = [] }) => {
   }
 
   // Check role-based access
-  if (requiredRoles.length > 0 && userProfile) {
-    const userRole = userProfile.role;
-    if (!requiredRoles.includes(userRole)) {
-      // Redirect to appropriate dashboard based on user role
-      const roleRedirects = {
-        user: '/home-dashboard',
-        hospital: '/hospital-dashboard',
-        admin: '/admin-dashboard'
-      };
-      const redirectTo = roleRedirects[userRole] || '/home-dashboard';
-      return <Navigate to={redirectTo} replace />;
+  if (requiredRoles.length > 0) {
+    if (userProfile) {
+      const userRole = userProfile.role;
+      if (!requiredRoles.includes(userRole)) {
+        // Redirect to appropriate dashboard based on user role
+        const roleRedirects = {
+          user: '/home-dashboard',
+          hospital: '/hospital-dashboard',
+          admin: '/admin-dashboard'
+        };
+        const redirectTo = roleRedirects[userRole] || '/home-dashboard';
+        return <Navigate to={redirectTo} replace />;
+      }
+    } else if (isAuthenticated) {
+      // If authenticated but no profile yet, allow access (for mock auth)
+      return children;
     }
   }
 
