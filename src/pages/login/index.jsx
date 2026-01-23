@@ -1,14 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
-import { motion, AnimatePresence, useAnimation } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../contexts/AuthContext';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import Select from '../../components/ui/Select';
 import AppImage from '../../components/AppImage';
 import Icon from '../../components/AppIcon';
-import { formatAadhaar } from '../../utils/verhoeff';
+import VideoBackground from '../../components/VideoBackground';
+import { formatAadhaar, validateAadhaar } from '../../utils/verhoeff';
 import { otpService } from '../../utils/otpService';
 
 
@@ -47,19 +48,6 @@ const Login = () => {
   const [focusedField, setFocusedField] = useState(null);
 
   // Refs and motion values
-  const cardRef = useRef(null);
-  const cardControls = useAnimation();
-
-  // Start card animation on mount
-  useEffect(() => {
-    cardControls.start({
-      opacity: 1,
-      y: 0,
-      scale: 1,
-      boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
-      transition: { duration: 0.4, ease: 'easeOut' }
-    });
-  }, [cardControls]);
 
   const from = location.state?.from?.pathname || '/';
 
@@ -84,6 +72,16 @@ const Login = () => {
       setFullNameValid(fullName ? (fullName.trim().length > 0 ? true : false) : null);
     }
   }, [fullName, isSignUp]);
+
+  // Aadhaar validation
+  useEffect(() => {
+    if (isSignUp && (role === 'hospital' || role === 'admin')) {
+      const cleanAadhaar = aadhaar.replace(/\D/g, '');
+      setAadhaarValid(cleanAadhaar ? (cleanAadhaar.length === 12 && validateAadhaar(cleanAadhaar) ? true : false) : null);
+    } else {
+      setAadhaarValid(null);
+    }
+  }, [aadhaar, role, isSignUp]);
 
   // Aadhaar input handler with formatting
   const handleAadhaarChange = (e) => {
@@ -262,51 +260,12 @@ const Login = () => {
         <title>Login - SmartBloodAllocation</title>
         <meta name="description" content="Login to access the Smart Blood Allocation dashboard" />
       </Helmet>
-      <div
-        className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-red-50 px-4 relative overflow-hidden"
-      >
-        {/* Subtle background elements - kept minimal to not interfere with UI */}
-        <motion.div
-          className="absolute inset-0 opacity-10"
-          animate={{
-            background: [
-              'radial-gradient(circle at 20% 50%, rgba(239, 68, 68, 0.03) 0%, transparent 50%)',
-              'radial-gradient(circle at 80% 20%, rgba(59, 130, 246, 0.03) 0%, transparent 50%)',
-              'radial-gradient(circle at 40% 80%, rgba(16, 185, 129, 0.03) 0%, transparent 50%)',
-              'radial-gradient(circle at 20% 50%, rgba(239, 68, 68, 0.03) 0%, transparent 50%)'
-            ]
-          }}
-          transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
-        />
-
-        {/* Minimal floating particles */}
-        {[...Array(3)].map((_, i) => (
+      <VideoBackground videoUrl="https://xaiyfzzdkgostnvuvmpv.supabase.co/storage/v1/object/public/login_window1/demo-vmake.mp4">
+        <div className="max-w-md w-full">
           <motion.div
-            key={i}
-            className="absolute w-1 h-1 bg-red-300 rounded-full opacity-10"
-            style={{
-              left: `${25 + i * 20}%`,
-              top: `${35 + i * 15}%`,
-            }}
-            animate={{
-              y: [0, -10, 0],
-              opacity: [0.1, 0.3, 0.1],
-            }}
-            transition={{
-              duration: 4 + i * 0.5,
-              repeat: Infinity,
-              delay: i * 0.5,
-              ease: 'easeInOut'
-            }}
-          />
-        ))}
-
-        <div className="max-w-md w-full relative z-10">
-          <motion.div
-            ref={cardRef}
             className={`bg-white border border-gray-200 rounded-2xl shadow-2xl p-8 overflow-hidden ${shake ? 'animate-shake' : ''}`}
             initial={{ opacity: 0, y: 30 }}
-            animate={cardControls}
+            animate={{ opacity: 1, y: 0, scale: 1, boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)' }}
             transition={{ duration: 0.4, ease: 'easeOut' }}
             whileHover={{
               scale: 1.02,
@@ -753,7 +712,7 @@ const Login = () => {
             </div>
           </motion.div>
         </div>
-      </div>
+      </VideoBackground>
     </>
   );
 };
